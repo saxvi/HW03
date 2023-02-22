@@ -22,6 +22,7 @@ typedef struct {
     int yvel;
     int width;
     int height;
+    int color;
     int active;
 } OBST;
 

@@ -28,7 +28,7 @@ void initPlayer() {
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
-    player.height = 41;
+    player.height = 31;
     player.width = 41;
     player.color = BLUE;
 }
@@ -40,6 +40,25 @@ void initObst() {
         obstacles[i].height = 41;
         obstacles[i].active = 1;
         obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
-        obstacles[i].y = (obstacles[i].height + )
-    }    
+
+        int colorPicker = rand() % 4;
+        switch (colorPicker) {
+            case 0:
+                obstacles[i].color = FOREST;
+                break;
+            case 1:
+                obstacles[i].color = CADILLAC;
+                break;
+            case 2:
+                obstacles[i].color = PEENK;
+                break;
+            case 3:
+                obstacles[i].color = PORTAGE;
+                break;
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        obstacles[i].y = (obstacles[i].height + (60 / i));
+    }
 }
