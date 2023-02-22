@@ -117,7 +117,7 @@ void start() {
 
     waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
-        //srand(time(NULL));
+        srand(time(NULL));
         goToGame();
         initGame();
     }
@@ -126,8 +126,9 @@ void start() {
 // set up game
 void goToGame() {
 
-    fillScreen(BRULEE);
-    drawString(180, 2, "score: ", FOREST);
+    fillScreen(BLACK);
+    drawRect(52, 0, 131, SCREENHEIGHT, BRULEE);
+    drawString(2, 31, "score: ", FOREST);
     state = GAME;
 }
 
@@ -138,8 +139,8 @@ void game() {
     sprintf(buffer, "%d", score);
     waitForVBlank();
 
-    drawRect(220, 1, 6, 8, BRULEE);
-    drawString(220, 1, score, PORTAGE);
+    drawRect(2, 41, 52, 8 BLACK);
+    drawString(2, 41, buffer, FOREST);
 
     drawGame();
 
@@ -188,4 +189,14 @@ void lose() {
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }
+}
+
+// set up game
+void goToGame() {
+
+}
+
+// runs game state
+void game() {
+
 }

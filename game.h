@@ -11,6 +11,7 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
+    int powerup;
 } PLAYER;
 
 //obstacle struct
@@ -22,9 +23,19 @@ typedef struct {
     int yvel;
     int width;
     int height;
-    int color;
+    unsigned short color;
     int active;
 } OBST;
+
+// laser struct
+typedef struct {
+    int x;
+    int y;
+    int xvel;
+    int width;
+    int height;
+    unsigned short color;    
+} DOT;
 
 // constants
 #define bufferWidth 7
@@ -34,6 +45,7 @@ typedef struct {
 
 // variables
 extern PLAYER player;
+extern DOT laser;
 extern OBST obstacles[numObstacles];
 extern int score;
 

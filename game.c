@@ -15,7 +15,7 @@ void initGame() {
 
     score = 0;
 
-    //initLaser();
+    initLaser();
     initPlayer();
     initObst();
 }
@@ -31,6 +31,7 @@ void initPlayer() {
     player.height = 31;
     player.width = 41;
     player.color = BLUE;
+    player.powerup = 0;
 }
 
 // initialize obstacle struct
@@ -58,7 +59,66 @@ void initObst() {
         }
     }
 
-    for (int i = 0; i < 3; i++) {
-        obstacles[i].y = (obstacles[i].height + (60 / i));
+    for (int i = 0; i < 1; i++) {
+        obstacles[i].y = 30;
     }
+    for (int i = 1; i < 3; i++) {
+        obstacles[i].y = (i - 1) * obstacles[i].height;
+    }
+}
+
+// initialize laser (it is a + shape)
+void initLaser() {
+    laser.x = 68; // three across
+    laser.y = 10; // three high
+}
+
+// updating game
+void updateGame() {
+
+    updatePlayer();
+    updateLaser();
+
+    for (int i = 0; i < numObstacles; i++) {
+        OBST *o = &obstacles[i];
+        updateObst(o);
+    }
+
+    if (score > 0) {
+        if (!spawned) {
+            newObst();
+            spawned = 1;
+        }
+    } else {
+        spawned = 0;
+    }
+}
+
+// update player struct
+void updatePlayer() {
+
+    // movement and buttons
+    if (player.powerup == 0) { // standard movement
+        if (BUTTON_HELD(BUTTON_LEFT) && (player.x - 1 > 0)) {
+            player.xvel = -3;
+        }
+        else if (BUTTON_HELD(BUTTON_RIGHT) && (player.x + player.width < SCREENWIDTH - 1)) {
+            player.xvel = 3;
+        } else {
+            player.xvel = 0;
+        }
+    } else if (player.powerup == 1) { // fast moving, tap instead of hold
+                if (BUTTON_PRESSED(BUTTON_LEFT) && (player.x - 1 > 0)) {
+            player.xvel = -(41 + bufferWidth);
+        }
+        else if (BUTTON_PRESSED(BUTTON_RIGHT) && (player.x + player.width < SCREENWIDTH - 1)) {
+            player.xvel = (41 + bufferWidth);
+        } else {
+            player.xvel = 0;
+        }
+    }
+
+    // updating player position 
+    player.oldx = player.x;
+    player.x += player.xvel;
 }
