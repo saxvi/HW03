@@ -1,8 +1,13 @@
 #include "gba.h"
 #include "print.h"
+#include "font.h"
+#include "game.h"
+#include "sound.h"
 
 unsigned short oldButtons;
 unsigned short buttons;
+
+int score;
 
 // states
 enum
@@ -14,6 +19,13 @@ enum
     LOSE
 };
 int state;
+
+// random
+void srand();
+int rSeed;
+
+// text buffer
+char buffer[41];
 
 // prototypes
 void initialize();
@@ -59,6 +71,20 @@ void initialize() {
 
     REG_DISPCTL = MODE(3) | BG_ENABLE(2);
 
+    REG_SOUNDCNT_X = SND_ENABLED;
+
+    REG_SOUNDCNT_L = DMG_VOL_LEFT(5) |
+                   DMG_VOL_RIGHT(5) |
+                   DMG_SND1_LEFT |
+                   DMG_SND1_RIGHT |
+                   DMG_SND2_LEFT |
+                   DMG_SND2_RIGHT |
+                   DMG_SND3_LEFT |
+                   DMG_SND3_RIGHT |
+                   DMG_SND4_LEFT |
+                   DMG_SND4_RIGHT;
+    REG_SOUNDCNT_H = DMG_MASTER_VOL(2);
+    
     buttons = REG_BUTTONS;
     oldButtons = 0;
 
@@ -67,5 +93,99 @@ void initialize() {
 
 // set up start
 void goToStart() {
-    fillScreen();
+    fillScreen(FOREST);
+    char letters[10] = {'P', 'I', 'G', 'E', 'O', 'N', ' ', 'R', 'U', 'N'};
+    unsigned short colors[2] = {BRULEE, PEENK};
+    int col = 72;
+    int spacing = 12;
+    for (int i = 0; i < 8; i++) {
+        if ((i % 2) == 0) {
+            drawChar(col + (i * spacing), 70, letters[i], colors[0]);
+        } else {
+            drawChar(col + (i * spacing), 70, letters[i], colors[1]);
+        }
+    }
+
+    state = START;
+    rSeed = 0;
+}
+
+// runs start
+void start() {
+
+    rSeed++;
+
+    waitForVBlank();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        srand(time(NULL));
+        goToGame();
+        initGame();
+    }
+}
+
+// set up game
+void goToGame() {
+
+    fillScreen(BRULEE);
+    drawString(180, 2, "score: ", FOREST);
+    state = GAME;
+}
+
+// runs game state
+void game() {
+    updateGame();
+
+    sprintf(buffer, "%d", score);
+    waitForVBlank();
+
+    drawRect(220, 1, 6, 8, BRULEE);
+    drawString(220, 1, "%d", score, PORTAGE);
+
+    drawGame();
+
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToPause();
+    }
+
+    if (score == -1) {
+        goToLose();
+    }
+}
+
+// sets up pause state
+void goToPause() {
+    fillScreen(FOREST);
+    drawString(136, 18, "game paused!", BRULEE);
+    drawString(130, 28, "press start to continue", PEENK);
+    drawString(130, 38, "press select to quit", LAVPINK);
+    waitForVBlank();
+    state = PAUSE;
+}
+
+// runs pause state
+void pause() {
+    waitForVBlank();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToGame();
+    }
+    if (BUTTON_PRESSED(BUTTON_SELECT)) {
+        goToStart();
+    }
+}
+
+// set up lose
+void goToLose() {
+    fillScreen(PEENK);
+    drawString(172, 18, "you lose!", PORTAGE);
+    drawString(94, 28, "press start to try again", PORTAGE);
+    waitForVBlank();
+    state = LOSE;
+}
+
+// runs lose state
+void lose() {
+    waitForVBlank();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToStart();
+    }
 }
