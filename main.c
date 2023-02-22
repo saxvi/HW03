@@ -117,7 +117,7 @@ void start() {
 
     waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
-        srand(time(NULL));
+        //srand(time(NULL));
         goToGame();
         initGame();
     }
@@ -139,7 +139,7 @@ void game() {
     waitForVBlank();
 
     drawRect(220, 1, 6, 8, BRULEE);
-    drawString(220, 1, "%d", score, PORTAGE);
+    drawString(220, 1, score, PORTAGE);
 
     drawGame();
 

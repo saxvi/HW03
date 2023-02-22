@@ -27,12 +27,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 70 "gba.h"
+# 73 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 89 "gba.h"
+# 92 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -45,8 +45,8 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 121 "gba.h"
-void DMANow(int channel, volatile const void src, volatile voiddst, unsigned int cnt);
+# 124 "gba.h"
+void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 2 "main.c" 2
 # 1 "print.h" 1
 # 26 "print.h"
@@ -373,6 +373,8 @@ enum {
 unsigned short oldButtons;
 unsigned short buttons;
 
+int score;
+
 
 enum
 {
@@ -457,9 +459,9 @@ void initialize() {
 
 
 void goToStart() {
-    fillScreen(((31&31) | (27&31) << 5 | (18&31) << 10));
+    fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
     char letters[10] = {'P', 'I', 'G', 'E', 'O', 'N', ' ', 'R', 'U', 'N'};
-    unsigned short colors[2] = {((0&31) | (21&31) << 5 | (20&31) << 10), ((0&31) | (16&31) << 5 | (16&31) << 10)};
+    unsigned short colors[2] = {((25&31) | (22&31) << 5 | (17&31) << 10), ((25&31) | (18&31) << 5 | (14&31) << 10)};
     int col = 72;
     int spacing = 12;
     for (int i = 0; i < 8; i++) {
@@ -472,4 +474,84 @@ void goToStart() {
 
     state = START;
     rSeed = 0;
+}
+
+
+void start() {
+
+    rSeed++;
+
+    waitForVBlank();
+    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
+
+        goToGame();
+        initGame();
+    }
+}
+
+
+void goToGame() {
+
+    fillScreen(((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(180, 2, "score: ", ((6&31) | (14&31) << 5 | (11&31) << 10));
+    state = GAME;
+}
+
+
+void game() {
+    updateGame();
+
+    sprintf(buffer, "%d", score);
+    waitForVBlank();
+
+    drawRect(220, 1, 6, 8, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(220, 1, score, ((18&31) | (19&31) << 5 | (27&31) << 10));
+
+    drawGame();
+
+    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
+        goToPause();
+    }
+
+    if (score == -1) {
+        goToLose();
+    }
+}
+
+
+void goToPause() {
+    fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
+    drawString(136, 18, "game paused!", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(130, 28, "press start to continue", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(130, 38, "press select to quit", ((31&31) | (20&31) << 5 | (26&31) << 10));
+    waitForVBlank();
+    state = PAUSE;
+}
+
+
+void pause() {
+    waitForVBlank();
+    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
+        goToGame();
+    }
+    if ((!(~(oldButtons) & ((1<<2))) && (~(buttons) & ((1<<2))))) {
+        goToStart();
+    }
+}
+
+
+void goToLose() {
+    fillScreen(((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(172, 18, "you lose!", ((18&31) | (19&31) << 5 | (27&31) << 10));
+    drawString(94, 28, "press start to try again", ((18&31) | (19&31) << 5 | (27&31) << 10));
+    waitForVBlank();
+    state = LOSE;
+}
+
+
+void lose() {
+    waitForVBlank();
+    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
+        goToStart();
+    }
 }
