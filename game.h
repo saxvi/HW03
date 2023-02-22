@@ -23,3 +23,7 @@ typedef struct {
     int width;
     int height;
 } OBST;
+
+// variables
+extern PLAYER player;
+extern OBST obstacle;
