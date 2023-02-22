@@ -55,7 +55,7 @@ int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width
 #define OFFWHITE COLOR(28,29,30)
 #define PORTAGE COLOR(18,19,27)
 #define SKYBLUE COLOR(17,27,31)
-#define BRULEE COLOR(31,27,18)
+#define BRULEE COLOR(25,22,17)
 #define CADILLAC COLOR(19,9,13)
 #define ROGUE COLOR(22,6,13)
 #define VIORED COLOR(28,8,16)
@@ -64,6 +64,9 @@ int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width
 #define TURQUOISE COLOR(5,26,25)
 #define PERSIAN COLOR(0,21,20)
 #define TEAL COLOR(0,16,16)
+#define FOREST COLOR(6, 14, 11)
+#define PEENK COLOR(25, 18, 14)
+
 
 // Mode 3 Drawing Functions
 #define setPixel(x, y, color) (videoBuffer[OFFSET(x, y, SCREENWIDTH)] = color)
@@ -97,7 +100,7 @@ typedef volatile struct {
     volatile void *dst;
     volatile unsigned int cnt;
 } DMA;
-extern DMA *dma;
+extern DMA *dma; // address to fist dma register
 
 // dma bits
 #define DMA_DESTINATION_INCREMENT (0 << 21) // Increment destination (move "forwards" in memory)
@@ -118,6 +121,6 @@ extern DMA *dma;
 #define DMA_ON  (1 << 31) // Enable DMA!!!
 
 // begins a dma transfer using parameters
-void DMANow(int channel, volatile const void src, volatile voiddst, unsigned int cnt);
+void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 
 #endif
