@@ -24,6 +24,9 @@ typedef struct {
     int height;
 } OBST;
 
+// constants
+#define OBSTCOUNT 5;
+
 // variables
 extern PLAYER player;
 extern OBST obstacle;
