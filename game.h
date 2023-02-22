@@ -22,11 +22,29 @@ typedef struct {
     int yvel;
     int width;
     int height;
+    int active;
 } OBST;
 
 // constants
-#define OBSTCOUNT 5;
+#define bufferWidth 7
+#define borderWidth 52
+#define floorWidth  137
+#define numObstacles 5
 
 // variables
 extern PLAYER player;
-extern OBST obstacle;
+extern OBST obstacles[numObstacles];
+extern int score;
+
+// function prototypes
+void initGame();
+void initPlayer();
+void initObst();
+void updateGame();
+void updatePlayer();
+void updateObst(OBST* o);
+void drawGame();
+void drawPlayer();
+void drawObst(OBST* o);
+void newObst();
+

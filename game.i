@@ -27,11 +27,26 @@ typedef struct {
     int yvel;
     int width;
     int height;
+    int active;
 } OBST;
 
 
+
 extern PLAYER player;
-extern OBST obstacle;
+extern OBST obstacles[5];
+extern int score;
+
+
+void initGame();
+void initPlayer();
+void initObst();
+void updateGame();
+void updatePlayer();
+void updateObst(OBST* o);
+void drawGame();
+void drawPlayer();
+void drawObst(OBST* o);
+void newObst();
 # 2 "game.c" 2
 # 1 "gba.h" 1
 
@@ -58,12 +73,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 70 "gba.h"
+# 73 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 89 "gba.h"
+# 92 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -76,8 +91,8 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 121 "gba.h"
-void DMANow(int channel, volatile const void src, volatile voiddst, unsigned int cnt);
+# 124 "gba.h"
+void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 3 "game.c" 2
 # 1 "sound.h" 1
 # 75 "sound.h"
@@ -172,7 +187,27 @@ void initGame() {
 
     score = 0;
 
-    initLaser();
+
     initPlayer();
     initObsts();
+}
+
+
+
+void initPlayer() {
+    player.x = 100;
+    player.y = 100;
+    player.oldx = player.x;
+    player.oldy = player.y;
+    player.xvel = 0;
+    player.height = 30;
+    player.width = 30;
+    player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
+}
+
+
+void initObst() {
+    for (int i = 0; i < 5; i++) {
+
+    }
 }

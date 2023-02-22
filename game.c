@@ -17,7 +17,7 @@ void initGame() {
 
     //initLaser();
     initPlayer();
-    initObsts();
+    initObst();
 }
 
 
@@ -28,14 +28,18 @@ void initPlayer() {
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
-    player.height = 30;
-    player.width = 30;
+    player.height = 41;
+    player.width = 41;
     player.color = BLUE;
 }
 
 // initialize obstacle struct
 void initObst() {
-    for (int i = 0; i < OBSTCOUNT, i++) {
-        
+    for (int i = 0; i < numObstacles; i++) {
+        obstacles[i].width = 41;
+        obstacles[i].height = 41;
+        obstacles[i].active = 1;
+        obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
+        obstacles[i].y = (obstacles[i].height + )
     }    
 }
