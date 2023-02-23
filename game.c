@@ -9,10 +9,10 @@ DOT laser;
 
 // utility 
 OBST obstacles[numObstacles];
+int spawned;
 
 //score
 int score;
-int spawned;
 
 // initialize game
 void initGame() {
@@ -24,6 +24,7 @@ void initGame() {
     initObst();
 }
 
+// initialize background
 
 // initialize player struct
 void initPlayer() {
@@ -106,6 +107,9 @@ void updateGame() {
     updateBG();
 }
 
+// update background
+
+
 // update player struct
 void updatePlayer() {
 
@@ -187,8 +191,44 @@ void updateObst(OBST* o) {
 // draw the game!
 void drawGame() {
     drawPlayer();
-    drawBall();
+    drawLaser();
     for (int i = 0; i < numObstacles; i++) {
-        drawBlocks(&obstacles[i]);
+        drawObst(&obstacles[i]);
+    }
+}
+
+// draw player
+void drawPlayer() {
+    drawRect(player.oldx, player.oldy, player.width, player.height, BRULEE);
+    drawRect(player.x, player.y, player.width, player.height, player.color);
+}
+
+// draw laser
+void drawLaser() {
+    drawRect(laser.x, laser.y, laser.height, laser.height, BRULEE);
+    drawRect(laser.x - 1, laser.y, laser.height, laser.width, laser.color);
+    drawRect(laser.x, laser.y - 1, laser.width, laser.height, laser.color);
+}
+
+drawObst(OBST* o) {
+    if (o -> active) {
+        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, BRULEE);
+        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+    }
+}
+
+drawBG() {
+    drawRect(52, 0, floorWidth, SCREENHEIGHT, BRULEE);
+    drawRect(0, 0, borderWidth, SCREENHEIGHT, )
+}
+
+//
+void newObst() {
+    spawned = 1;
+    for (int i = 0; i < numObstacles; i++) {
+        if (obstacles[i].active == 0) {
+            obstacles[i].active = 1; 
+        }
+        break;
     }
 }
