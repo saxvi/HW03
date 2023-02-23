@@ -32,6 +32,7 @@ typedef struct {
     int x;
     int y;
     int xvel;
+    int oldx;
     int width;
     int height;
     unsigned short color;    
@@ -56,6 +57,7 @@ void initObst();
 void updateGame();
 void updatePlayer();
 void updateObst(OBST* o);
+void updateBG();
 void drawGame();
 void drawPlayer();
 void drawObst(OBST* o);

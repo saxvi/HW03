@@ -16,6 +16,7 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
+    int powerup;
 } PLAYER;
 
 
@@ -27,12 +28,23 @@ typedef struct {
     int yvel;
     int width;
     int height;
+    unsigned short color;
     int active;
 } OBST;
 
 
-
+typedef struct {
+    int x;
+    int y;
+    int xvel;
+    int oldx;
+    int width;
+    int height;
+    unsigned short color;
+} DOT;
+# 48 "game.h"
 extern PLAYER player;
+extern DOT laser;
 extern OBST obstacles[5];
 extern int score;
 
@@ -43,6 +55,7 @@ void initObst();
 void updateGame();
 void updatePlayer();
 void updateObst(OBST* o);
+void updateBG();
 void drawGame();
 void drawPlayer();
 void drawObst(OBST* o);
@@ -177,6 +190,10 @@ enum {
 
 PLAYER player;
 OBST obstacle;
+DOT laser;
+
+
+OBST obstacles[5];
 
 
 int score;
@@ -187,9 +204,9 @@ void initGame() {
 
     score = 0;
 
-
     initPlayer();
-    initObsts();
+    initLaser();
+    initObst();
 }
 
 
@@ -200,14 +217,118 @@ void initPlayer() {
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
-    player.height = 30;
-    player.width = 30;
+    player.height = 31;
+    player.width = 41;
     player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
+    player.powerup = 0;
+}
+
+
+void initLaser() {
+    laser.x = 68;
+    laser.y = 10;
+    laser.oldx = laser.x;
+    laser.height = 3;
+    laser.width = 1;
+    laser.color = ((31&31) | (0&31) << 5 | (0&31) << 10);
 }
 
 
 void initObst() {
     for (int i = 0; i < 5; i++) {
+        obstacles[i].width = 41;
+        obstacles[i].height = 41;
+        obstacles[i].active = 1;
+        obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
 
+        int colorPicker = rand() % 4;
+        switch (colorPicker) {
+            case 0:
+                obstacles[i].color = ((6&31) | (14&31) << 5 | (11&31) << 10);
+                break;
+            case 1:
+                obstacles[i].color = ((19&31) | (9&31) << 5 | (13&31) << 10);
+                break;
+            case 2:
+                obstacles[i].color = ((25&31) | (18&31) << 5 | (14&31) << 10);
+                break;
+            case 3:
+                obstacles[i].color = ((18&31) | (19&31) << 5 | (27&31) << 10);
+                break;
+        }
     }
+
+    for (int i = 0; i < 1; i++) {
+        obstacles[i].y = 30;
+    }
+    for (int i = 1; i < 3; i++) {
+        obstacles[i].y = (i - 1) * obstacles[i].height;
+    }
+}
+
+
+void updateGame() {
+
+    updatePlayer();
+    updateLaser();
+
+    for (int i = 0; i < 5; i++) {
+        OBST *o = &obstacles[i];
+        updateObst(o);
+    }
+
+    if (score > 0) {
+        if (!spawned) {
+            newObst();
+            spawned = 1;
+        }
+    } else {
+        spawned = 0;
+    }
+
+    updateBG();
+}
+
+
+void updatePlayer() {
+
+
+    if (player.powerup == 0) {
+        if ((~(buttons) & ((1<<5))) && (player.x - 1 > 0)) {
+            player.xvel = -3;
+        }
+        else if ((~(buttons) & ((1<<4))) && (player.x + player.width < 240 - 1)) {
+            player.xvel = 3;
+        } else {
+            player.xvel = 0;
+        }
+    } else if (player.powerup == 1) {
+                if ((!(~(oldButtons) & ((1<<5))) && (~(buttons) & ((1<<5)))) && (player.x - 1 > 0)) {
+            player.xvel = -(41 + 7);
+        }
+        else if ((!(~(oldButtons) & ((1<<4))) && (~(buttons) & ((1<<4)))) && (player.x + player.width < 240 - 1)) {
+            player.xvel = (41 + 7);
+        } else {
+            player.xvel = 0;
+        }
+    }
+
+
+    player.oldx = player.x;
+    player.x += player.xvel;
+}
+
+void updateLaser() {
+
+
+    if (laser.x <= 64) {
+        laser.xvel = 1;
+    }
+    if (laser.x + laser.height >= 72) {
+        laser.xvel = -1;
+    }
+
+
+    laser.oldx = laser.x;
+    laser.x += laser.xvel;
 }

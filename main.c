@@ -3,6 +3,9 @@
 #include "font.h"
 #include "game.h"
 #include "sound.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 unsigned short oldButtons;
 unsigned short buttons;
@@ -127,7 +130,7 @@ void start() {
 void goToGame() {
 
     fillScreen(BLACK);
-    drawRect(52, 0, 131, SCREENHEIGHT, BRULEE);
+    drawRect(52, 0, 137, SCREENHEIGHT, BRULEE);
     drawString(2, 31, "score: ", FOREST);
     state = GAME;
 }
@@ -139,7 +142,7 @@ void game() {
     sprintf(buffer, "%d", score);
     waitForVBlank();
 
-    drawRect(2, 41, 52, 8 BLACK);
+    drawRect(2, 41, 52, 8, BLACK);
     drawString(2, 41, buffer, FOREST);
 
     drawGame();
@@ -189,14 +192,4 @@ void lose() {
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }
-}
-
-// set up game
-void goToGame() {
-
-}
-
-// runs game state
-void game() {
-
 }

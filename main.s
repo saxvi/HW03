@@ -134,30 +134,43 @@ goToGame:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, lr}
-	ldr	r0, .L17
-	ldr	r3, .L17+4
+	mov	r0, #0
+	sub	sp, sp, #8
+	ldr	r3, .L17
 	mov	lr, pc
 	bx	r3
+	ldr	r2, .L17+4
+	mov	r3, #160
+	str	r2, [sp]
+	mov	r1, #0
+	mov	r2, #137
+	mov	r0, #52
 	ldr	r4, .L17+8
+	mov	lr, pc
+	bx	r4
+	mov	r1, #31
+	mov	r0, #2
 	ldr	r3, .L17+12
 	ldr	r2, .L17+16
-	mov	r1, #2
-	mov	r0, #180
+	ldr	r4, .L17+20
 	mov	lr, pc
 	bx	r4
 	mov	r2, #1
-	ldr	r3, .L17+20
-	pop	{r4, lr}
+	ldr	r3, .L17+24
 	str	r2, [r3]
+	add	sp, sp, #8
+	@ sp needed
+	pop	{r4, lr}
 	bx	lr
 .L18:
 	.align	2
 .L17:
-	.word	18137
 	.word	fillScreen
-	.word	drawString
+	.word	18137
+	.word	drawRect
 	.word	11718
 	.word	.LC2
+	.word	drawString
 	.word	state
 	.size	goToGame, .-goToGame
 	.align	2
@@ -183,15 +196,21 @@ start:
 	tst	r3, #8
 	beq	.L19
 	ldr	r3, .L26+12
-	ldrh	r3, [r3]
-	tst	r3, #8
+	ldrh	r0, [r3]
+	ands	r0, r0, #8
 	beq	.L25
 .L19:
 	pop	{r4, lr}
 	bx	lr
 .L25:
-	bl	goToGame
 	ldr	r3, .L26+16
+	mov	lr, pc
+	bx	r3
+	ldr	r3, .L26+20
+	mov	lr, pc
+	bx	r3
+	bl	goToGame
+	ldr	r3, .L26+24
 	mov	lr, pc
 	bx	r3
 	pop	{r4, lr}
@@ -203,6 +222,8 @@ start:
 	.word	waitForVBlank
 	.word	oldButtons
 	.word	buttons
+	.word	time
+	.word	srand
 	.word	initGame
 	.size	start, .-start
 	.section	.rodata.str1.4
@@ -406,30 +427,30 @@ game:
 	ldr	r3, .L59+20
 	mov	lr, pc
 	bx	r3
-	ldr	r2, .L59+24
+	mov	r2, #0
 	mov	r3, #8
-	mov	r1, #1
-	mov	r0, #220
+	mov	r1, #41
+	mov	r0, #2
 	str	r2, [sp]
-	ldr	r5, .L59+28
-	mov	r2, #6
+	ldr	r5, .L59+24
+	mov	r2, #52
 	mov	lr, pc
 	bx	r5
-	mov	r1, #1
-	mov	r0, #220
-	ldr	r2, [r4]
-	ldr	r3, .L59+32
-	ldr	r5, .L59+36
+	mov	r1, #41
+	mov	r0, #2
+	ldr	r3, .L59+28
+	ldr	r2, .L59+16
+	ldr	r5, .L59+32
 	mov	lr, pc
 	bx	r5
-	ldr	r3, .L59+40
+	ldr	r3, .L59+36
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L59+44
+	ldr	r3, .L59+40
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L51
-	ldr	r3, .L59+48
+	ldr	r3, .L59+44
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L57
@@ -458,9 +479,8 @@ game:
 	.word	sprintf
 	.word	buffer
 	.word	waitForVBlank
-	.word	18137
 	.word	drawRect
-	.word	28274
+	.word	11718
 	.word	drawString
 	.word	drawGame
 	.word	oldButtons
