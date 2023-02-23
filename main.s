@@ -359,42 +359,42 @@ goToLose:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, lr}
-	ldr	r5, .L48
-	ldr	r0, .L48+4
-	ldr	r3, .L48+8
+	push	{r4, lr}
+	ldr	r0, .L48
+	ldr	r3, .L48+4
 	mov	lr, pc
 	bx	r3
-	ldr	r4, .L48+12
-	mov	r3, r5
-	mov	r1, #18
-	mov	r0, #90
+	ldr	r4, .L48+8
+	mov	r1, #48
+	mov	r0, #85
+	ldr	r3, .L48+12
 	ldr	r2, .L48+16
 	mov	lr, pc
 	bx	r4
-	mov	r3, r5
 	ldr	r2, .L48+20
-	mov	r1, #28
-	mov	r0, #60
+	mov	r1, #68
+	mov	r0, #45
+	ldr	r3, .L48+24
 	mov	lr, pc
 	bx	r4
-	ldr	r3, .L48+24
+	ldr	r3, .L48+28
 	mov	lr, pc
 	bx	r3
 	mov	r2, #4
-	ldr	r3, .L48+28
-	pop	{r4, r5, r6, lr}
+	ldr	r3, .L48+32
+	pop	{r4, lr}
 	str	r2, [r3]
 	bx	lr
 .L49:
 	.align	2
 .L48:
-	.word	28274
-	.word	14937
+	.word	11718
 	.word	fillScreen
 	.word	drawString
+	.word	14937
 	.word	.LC6
 	.word	.LC7
+	.word	18137
 	.word	waitForVBlank
 	.word	state
 	.size	goToLose, .-goToLose

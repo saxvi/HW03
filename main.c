@@ -10,7 +10,7 @@
 unsigned short oldButtons;
 unsigned short buttons;
 
-int t = 0;
+extern int t = 0;
 int skipFrames = 2;
 
 int score;
@@ -186,9 +186,9 @@ void pause() {
 
 // set up lose
 void goToLose() {
-    fillScreen(PEENK);
-    drawString(90, 18, "you lose!", PORTAGE);
-    drawString(60, 28, "press start to try again", PORTAGE);
+    fillScreen(FOREST);
+    drawString(85, 48, "you lose!", PEENK);
+    drawString(45, 68, "press start to try again", BRULEE);
     waitForVBlank();
     state = LOSE;
 }

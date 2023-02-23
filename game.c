@@ -6,6 +6,7 @@
 PLAYER player;
 OBST obstacle;
 DOT laser;
+DOT powerup;
 
 // utility 
 OBST obstacles[numObstacles];
@@ -18,7 +19,7 @@ int lineyvel = 1;
 
 
 //score
-int score;
+extern int score;
 
 // initialize game
 void initGame() {
@@ -63,10 +64,11 @@ void initObst() {
         obstacles[i].width = 41;
         obstacles[i].height = 41;
         obstacles[i].active = 1;
-        obstacles[i].yvel = 1;
+        obstacles[i].yvel = (rand() % 2) + 1;
         obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
+        obstacles[i].y = (i * 80);
 
-        int colorPicker = rand() % 4;
+        int colorPicker = rand() % 3;
         switch (colorPicker) {
             case 0:
                 obstacles[i].color = FOREST;
@@ -75,27 +77,22 @@ void initObst() {
                 obstacles[i].color = CADILLAC;
                 break;
             case 2:
-                obstacles[i].color = PEENK;
-                break;
-            case 3:
-                obstacles[i].color = PORTAGE;
+                obstacles[i].color = VIORED;
                 break;
         }
     }
 
-    for (int i = 0; i < 1; i++) {
-        obstacles[i].y = 30;
-    }
-    for (int i = 1; i < 3; i++) {
-        obstacles[i].y = (i - 1) * obstacles[i].height;
-    }
+    ;
+
+    // for (int i = 1; i < 3; i++) {
+    //     obstacles[i].y = (i) * obstacles[i].height;
+    // }
 }
 
 // updating game
 void updateGame() {
 
     updatePlayer();
-    //updateLaser();
 
     for (int i = 0; i < numObstacles; i++) {
         OBST *o = &obstacles[i];
@@ -141,7 +138,7 @@ void updatePlayer() {
     // lose if player is pushed off (collides with) the bottom of the screen 
     if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
         REG_SND2CNT = DMG_ENV_VOL(5) |
-                            DMG_STEP_TIME(7);
+                            DMG_STEP_TIME(3);
         REG_SND2FREQ = NOTE_C4 | SND_RESET;
         score = -1;
     }
@@ -171,24 +168,29 @@ void updateLaser() {
 // updates obstacles
 void updateObst(OBST* o) {
     if (o -> active) {
-        if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o -> height)) {
-            player.y++;
-        }
-        // if player passes obstacle, increment score
-        if (player.y < (o -> y + o -> height)) {
-            REG_SND2CNT = DMG_ENV_VOL(2) |
-                            DMG_STEP_TIME(5);
-            REG_SND2FREQ = NOTE_E4 | SND_RESET;
-            score++;
-        }
 
+        if (collision(player.x, player.y, player.width, player.height, o -> x - o->height, o -> y, o -> width, o -> height)) {
+            player.y++;
+        }    
+
+
+
+        if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) { // if they hit the bottom of the screen
+
+            // add a point for every obst passed
+            REG_SND2CNT = DMG_ENV_VOL(2) |
+                            DMG_STEP_TIME(2);
+            REG_SND2FREQ = NOTE_G5 | SND_RESET;
+            score++;
+
+            // respawn obst at top of screen
+            o -> y = 0;
+            o->yvel = (rand() % 2) + 1;
+        }
         // update position
+        o->oldx = o->x;
         o->oldy = o->y;
         o->y += o->yvel;
-
-        // if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) {
-        //     o -> y = 0;
-        // }
     }
 }
 
@@ -230,9 +232,12 @@ void drawLaser() {
 }
 
 drawObst(OBST* o) {
-    if (o -> active) {
-        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, BRULEE);
-        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+    for (int i = 0; i < numObstacles; i++) {
+    
+            drawRect(o -> oldx, o -> oldy, o -> width + 1, o -> height + 1, BRULEE);
+
+            drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+    
     }
 }
 

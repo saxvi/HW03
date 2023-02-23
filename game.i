@@ -46,7 +46,7 @@ typedef struct {
 # 49 "game.h"
 extern PLAYER player;
 extern DOT laser;
-extern OBST obstacles[4];
+extern OBST obstacles[3];
 extern int score;
 
 
@@ -192,9 +192,10 @@ enum {
 PLAYER player;
 OBST obstacle;
 DOT laser;
+DOT powerup;
 
 
-OBST obstacles[4];
+OBST obstacles[3];
 int spawned;
 
 
@@ -204,7 +205,7 @@ int lineyvel = 1;
 
 
 
-int score;
+extern int score;
 
 
 void initGame() {
@@ -245,14 +246,15 @@ void initLaser() {
 
 
 void initObst() {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         obstacles[i].width = 41;
         obstacles[i].height = 41;
         obstacles[i].active = 1;
-        obstacles[i].yvel = 1;
+        obstacles[i].yvel = (rand() % 2) + 1;
         obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
+        obstacles[i].y = (i * 80);
 
-        int colorPicker = rand() % 4;
+        int colorPicker = rand() % 3;
         switch (colorPicker) {
             case 0:
                 obstacles[i].color = ((6&31) | (14&31) << 5 | (11&31) << 10);
@@ -261,20 +263,16 @@ void initObst() {
                 obstacles[i].color = ((19&31) | (9&31) << 5 | (13&31) << 10);
                 break;
             case 2:
-                obstacles[i].color = ((25&31) | (18&31) << 5 | (14&31) << 10);
-                break;
-            case 3:
-                obstacles[i].color = ((18&31) | (19&31) << 5 | (27&31) << 10);
+                obstacles[i].color = ((28&31) | (8&31) << 5 | (16&31) << 10);
                 break;
         }
     }
 
-    for (int i = 0; i < 1; i++) {
-        obstacles[i].y = 30;
-    }
-    for (int i = 1; i < 3; i++) {
-        obstacles[i].y = (i - 1) * obstacles[i].height;
-    }
+    ;
+
+
+
+
 }
 
 
@@ -282,8 +280,7 @@ void updateGame() {
 
     updatePlayer();
 
-
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         OBST *o = &obstacles[i];
         updateObst(o);
     }
@@ -327,7 +324,7 @@ void updatePlayer() {
 
     if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
         *(volatile u16*)0x04000068 = (((5) & 15) << 12) |
-                            (((7) & 7) << 8);
+                            (((3) & 7) << 8);
         *(volatile u16*)0x0400006C = NOTE_C4 | (1<<15);
         score = -1;
     }
@@ -357,24 +354,29 @@ void updateLaser() {
 
 void updateObst(OBST* o) {
     if (o -> active) {
-        if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o -> height)) {
+
+        if (collision(player.x, player.y, player.width, player.height, o -> x - o->height, o -> y, o -> width, o -> height)) {
             player.y++;
         }
 
-        if (player.y < (o -> y + o -> height)) {
+
+
+        if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) {
+
+
             *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
-                            (((5) & 7) << 8);
-            *(volatile u16*)0x0400006C = NOTE_E4 | (1<<15);
+                            (((2) & 7) << 8);
+            *(volatile u16*)0x0400006C = NOTE_G5 | (1<<15);
             score++;
+
+
+            o -> y = 0;
+            o->yvel = (rand() % 2) + 1;
         }
 
-
+        o->oldx = o->x;
         o->oldy = o->y;
         o->y += o->yvel;
-
-
-
-
     }
 }
 
@@ -396,7 +398,7 @@ void drawGame() {
 
     drawPlayer();
     drawLaser();
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         drawObst(&obstacles[i]);
     }
 }
@@ -416,9 +418,12 @@ void drawLaser() {
 }
 
 drawObst(OBST* o) {
-    if (o -> active) {
-        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
-        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+    for (int i = 0; i < 3; i++) {
+
+            drawRect(o -> oldx, o -> oldy, o -> width + 1, o -> height + 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+
+            drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+
     }
 }
 
@@ -440,7 +445,7 @@ drawBG() {
 
 void newObst() {
     spawned = 1;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         if (obstacles[i].active == 0) {
             obstacles[i].active = 1;
         }

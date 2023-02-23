@@ -303,7 +303,7 @@ typedef struct {
 # 49 "game.h"
 extern PLAYER player;
 extern DOT laser;
-extern OBST obstacles[4];
+extern OBST obstacles[3];
 extern int score;
 
 
@@ -1446,7 +1446,7 @@ extern long double strtold (const char *restrict, char **restrict);
 unsigned short oldButtons;
 unsigned short buttons;
 
-int t = 0;
+extern int t = 0;
 int skipFrames = 2;
 
 int score;
@@ -1626,9 +1626,9 @@ void pause() {
 
 
 void goToLose() {
-    fillScreen(((25&31) | (18&31) << 5 | (14&31) << 10));
-    drawString(90, 18, "you lose!", ((18&31) | (19&31) << 5 | (27&31) << 10));
-    drawString(60, 28, "press start to try again", ((18&31) | (19&31) << 5 | (27&31) << 10));
+    fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
+    drawString(85, 48, "you lose!", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(45, 68, "press start to try again", ((25&31) | (22&31) << 5 | (17&31) << 10));
     waitForVBlank();
     state = LOSE;
 }
