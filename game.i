@@ -38,11 +38,12 @@ typedef struct {
     int y;
     int xvel;
     int oldx;
+    int oldy;
     int width;
     int height;
     unsigned short color;
 } DOT;
-# 48 "game.h"
+# 49 "game.h"
 extern PLAYER player;
 extern DOT laser;
 extern OBST obstacles[4];
@@ -86,12 +87,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 73 "gba.h"
+# 76 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 92 "gba.h"
+# 95 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -104,7 +105,7 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 124 "gba.h"
+# 127 "gba.h"
 void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 3 "game.c" 2
 # 1 "sound.h" 1
@@ -194,10 +195,16 @@ DOT laser;
 
 
 OBST obstacles[4];
+int spawned;
+
+
+int lineY = 10;
+int oldlineY;
+int lineyvel = 1;
+
 
 
 int score;
-int spawned;
 
 
 void initGame() {
@@ -211,6 +218,7 @@ void initGame() {
 
 
 
+
 void initPlayer() {
     player.x = 100;
     player.y = 100;
@@ -219,16 +227,17 @@ void initPlayer() {
     player.xvel = 0;
     player.yvel = 0;
     player.height = 31;
-    player.width = 41;
+    player.width = 20;
     player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
     player.powerup = 0;
 }
 
 
 void initLaser() {
-    laser.x = 68;
+    laser.x = 120;
     laser.y = 10;
     laser.oldx = laser.x;
+    laser.oldy = laser.y;
     laser.height = 3;
     laser.width = 1;
     laser.color = ((31&31) | (0&31) << 5 | (0&31) << 10);
@@ -272,7 +281,7 @@ void initObst() {
 void updateGame() {
 
     updatePlayer();
-    updateLaser();
+
 
     for (int i = 0; i < 4; i++) {
         OBST *o = &obstacles[i];
@@ -296,10 +305,10 @@ void updatePlayer() {
 
 
     if (player.powerup == 0) {
-        if ((~(buttons) & ((1<<5))) && (player.x - 1 > 0)) {
+        if ((~(buttons) & ((1<<5))) && (player.x - 1 > 52)) {
             player.xvel = -3;
         }
-        else if ((~(buttons) & ((1<<4))) && (player.x + player.width < 240 - 1)) {
+        else if ((~(buttons) & ((1<<4))) && (player.x + player.width < 52 + 137 - 1)) {
             player.xvel = 3;
         } else {
             player.xvel = 0;
@@ -333,10 +342,10 @@ void updatePlayer() {
 void updateLaser() {
 
 
-    if (laser.x <= 64) {
+    if (laser.x <= 110) {
         laser.xvel = 1;
     }
-    if (laser.x + laser.height >= 72) {
+    if (laser.x + laser.height >= 130) {
         laser.xvel = -1;
     }
 
@@ -349,10 +358,10 @@ void updateLaser() {
 void updateObst(OBST* o) {
     if (o -> active) {
         if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o -> height)) {
-            player.y--;
+            player.y++;
         }
 
-        if (player.y > (o -> y + o -> height)) {
+        if (player.y < (o -> y + o -> height)) {
             *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
                             (((5) & 7) << 8);
             *(volatile u16*)0x0400006C = NOTE_E4 | (1<<15);
@@ -361,7 +370,7 @@ void updateObst(OBST* o) {
 
 
         o->oldy = o->y;
-        o->x += o->yvel;
+        o->y += o->yvel;
 
 
 
@@ -370,7 +379,21 @@ void updateObst(OBST* o) {
 }
 
 
+void updateBG() {
+
+    lineY += lineyvel;
+    oldlineY = lineY;
+
+    if (lineY > 160) {
+        lineY = 0;
+    }
+}
+
+
 void drawGame() {
+
+    drawBG();
+
     drawPlayer();
     drawLaser();
     for (int i = 0; i < 4; i++) {
@@ -386,7 +409,8 @@ void drawPlayer() {
 
 
 void drawLaser() {
-    drawRect(laser.x, laser.y, laser.height, laser.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(laser.oldx - 1, laser.oldy - 1, laser.height, laser.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+
     drawRect(laser.x - 1, laser.y, laser.height, laser.width, laser.color);
     drawRect(laser.x, laser.y - 1, laser.width, laser.height, laser.color);
 }
@@ -397,6 +421,21 @@ drawObst(OBST* o) {
         drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
 }
+
+drawBG() {
+
+
+
+
+
+
+    drawRect(52, lineY, 137, 1, ((20&31) | (17&31) << 5 | (12&31) << 10));
+    drawRect(52, oldlineY - 1, 137, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+
+    drawRect(52 + 41, 0, 7, 160, ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawRect(52 + 41 + 7 + 41, 0, 7, 160, ((25&31) | (18&31) << 5 | (14&31) << 10));
+
+ }
 
 
 void newObst() {

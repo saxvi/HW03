@@ -10,6 +10,9 @@
 unsigned short oldButtons;
 unsigned short buttons;
 
+int t = 0;
+int skipFrames = 2;
+
 int score;
 
 // states
@@ -48,6 +51,9 @@ int main() {
     initialize();
 
     while (1) {
+         if (t % skipFrames == 0) {
+            updateLaser();
+        }
         oldButtons = buttons;
         buttons = REG_BUTTONS;
 
@@ -66,6 +72,7 @@ int main() {
                 lose();
                 break;
         }
+        t++;
     }
 }
 
@@ -99,9 +106,9 @@ void goToStart() {
     fillScreen(FOREST);
     char letters[10] = {'P', 'I', 'G', 'E', 'O', 'N', ' ', 'R', 'U', 'N'};
     unsigned short colors[2] = {BRULEE, PEENK};
-    int col = 72;
+    int col = 60;
     int spacing = 12;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 10; i++) {
         if ((i % 2) == 0) {
             drawChar(col + (i * spacing), 70, letters[i], colors[0]);
         } else {
@@ -129,7 +136,7 @@ void start() {
 // set up game
 void goToGame() {
 
-    fillScreen(BLACK);
+    fillScreen(BROWN);
     drawRect(52, 0, 137, SCREENHEIGHT, BRULEE);
     drawString(2, 31, "score: ", FOREST);
     state = GAME;
@@ -142,7 +149,7 @@ void game() {
     sprintf(buffer, "%d", score);
     waitForVBlank();
 
-    drawRect(2, 41, 52, 8, BLACK);
+    drawRect(2, 41, 50, 8, BROWN);
     drawString(2, 41, buffer, FOREST);
 
     drawGame();
@@ -159,9 +166,9 @@ void game() {
 // sets up pause state
 void goToPause() {
     fillScreen(FOREST);
-    drawString(136, 18, "game paused!", BRULEE);
-    drawString(130, 28, "press start to continue", PEENK);
-    drawString(130, 38, "press select to quit", LAVPINK);
+    drawString(90, 38, "game paused!", BRULEE);
+    drawString(60, 58, "press start to continue", PEENK);
+    drawString(70, 68, "press select to quit", LAVPINK);
     waitForVBlank();
     state = PAUSE;
 }
@@ -180,8 +187,8 @@ void pause() {
 // set up lose
 void goToLose() {
     fillScreen(PEENK);
-    drawString(172, 18, "you lose!", PORTAGE);
-    drawString(94, 28, "press start to try again", PORTAGE);
+    drawString(90, 18, "you lose!", PORTAGE);
+    drawString(60, 28, "press start to try again", PORTAGE);
     waitForVBlank();
     state = LOSE;
 }

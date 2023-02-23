@@ -27,12 +27,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 73 "gba.h"
+# 76 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 92 "gba.h"
+# 95 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -45,7 +45,7 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 124 "gba.h"
+# 127 "gba.h"
 void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 2 "main.c" 2
 # 1 "print.h" 1
@@ -295,14 +295,15 @@ typedef struct {
     int y;
     int xvel;
     int oldx;
+    int oldy;
     int width;
     int height;
     unsigned short color;
 } DOT;
-# 48 "game.h"
+# 49 "game.h"
 extern PLAYER player;
 extern DOT laser;
-extern OBST obstacles[5];
+extern OBST obstacles[4];
 extern int score;
 
 
@@ -1445,6 +1446,9 @@ extern long double strtold (const char *restrict, char **restrict);
 unsigned short oldButtons;
 unsigned short buttons;
 
+int t = 0;
+int skipFrames = 2;
+
 int score;
 
 
@@ -1483,6 +1487,9 @@ int main() {
     initialize();
 
     while (1) {
+         if (t % skipFrames == 0) {
+            updateLaser();
+        }
         oldButtons = buttons;
         buttons = (*(volatile unsigned short *)0x04000130);
 
@@ -1501,6 +1508,7 @@ int main() {
                 lose();
                 break;
         }
+        t++;
     }
 }
 
@@ -1534,9 +1542,9 @@ void goToStart() {
     fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
     char letters[10] = {'P', 'I', 'G', 'E', 'O', 'N', ' ', 'R', 'U', 'N'};
     unsigned short colors[2] = {((25&31) | (22&31) << 5 | (17&31) << 10), ((25&31) | (18&31) << 5 | (14&31) << 10)};
-    int col = 72;
+    int col = 60;
     int spacing = 12;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 10; i++) {
         if ((i % 2) == 0) {
             drawChar(col + (i * spacing), 70, letters[i], colors[0]);
         } else {
@@ -1556,9 +1564,9 @@ void start() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         srand(time(
-# 123 "main.c" 3 4
+# 130 "main.c" 3 4
                   ((void *)0)
-# 123 "main.c"
+# 130 "main.c"
                       ));
         goToGame();
         initGame();
@@ -1568,7 +1576,7 @@ void start() {
 
 void goToGame() {
 
-    fillScreen(((0&31) | (0&31) << 5 | (0&31) << 10));
+    fillScreen(((11&31) | (6&31) << 5 | (3&31) << 10));
     drawRect(52, 0, 137, 160, ((25&31) | (22&31) << 5 | (17&31) << 10));
     drawString(2, 31, "score: ", ((6&31) | (14&31) << 5 | (11&31) << 10));
     state = GAME;
@@ -1581,7 +1589,7 @@ void game() {
     sprintf(buffer, "%d", score);
     waitForVBlank();
 
-    drawRect(2, 41, 52, 8, ((0&31) | (0&31) << 5 | (0&31) << 10));
+    drawRect(2, 41, 50, 8, ((11&31) | (6&31) << 5 | (3&31) << 10));
     drawString(2, 41, buffer, ((6&31) | (14&31) << 5 | (11&31) << 10));
 
     drawGame();
@@ -1598,9 +1606,9 @@ void game() {
 
 void goToPause() {
     fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
-    drawString(136, 18, "game paused!", ((25&31) | (22&31) << 5 | (17&31) << 10));
-    drawString(130, 28, "press start to continue", ((25&31) | (18&31) << 5 | (14&31) << 10));
-    drawString(130, 38, "press select to quit", ((31&31) | (20&31) << 5 | (26&31) << 10));
+    drawString(90, 38, "game paused!", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(60, 58, "press start to continue", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(70, 68, "press select to quit", ((31&31) | (20&31) << 5 | (26&31) << 10));
     waitForVBlank();
     state = PAUSE;
 }
@@ -1619,8 +1627,8 @@ void pause() {
 
 void goToLose() {
     fillScreen(((25&31) | (18&31) << 5 | (14&31) << 10));
-    drawString(172, 18, "you lose!", ((18&31) | (19&31) << 5 | (27&31) << 10));
-    drawString(94, 28, "press start to try again", ((18&31) | (19&31) << 5 | (27&31) << 10));
+    drawString(90, 18, "you lose!", ((18&31) | (19&31) << 5 | (27&31) << 10));
+    drawString(60, 28, "press start to try again", ((18&31) | (19&31) << 5 | (27&31) << 10));
     waitForVBlank();
     state = LOSE;
 }

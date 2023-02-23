@@ -33,6 +33,7 @@ typedef struct {
     int y;
     int xvel;
     int oldx;
+    int oldy;
     int width;
     int height;
     unsigned short color;    
