@@ -5,6 +5,10 @@
 // structs on da screen
 PLAYER player;
 OBST obstacle;
+DOT laser;
+
+// utility 
+OBST obstacles[numObstacles];
 
 //score
 int score;
@@ -15,8 +19,8 @@ void initGame() {
 
     score = 0;
 
-    initLaser();
     initPlayer();
+    initLaser();
     initObst();
 }
 
@@ -28,10 +32,21 @@ void initPlayer() {
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
+    player.yvel = 0;
     player.height = 31;
     player.width = 41;
     player.color = BLUE;
     player.powerup = 0;
+}
+
+// initialize laser struct
+void initLaser() {
+    laser.x = 68;
+    laser.y = 10;
+    laser.oldx = laser.x;
+    laser.height = 3;
+    laser.width = 1;
+    laser.color = RED;
 }
 
 // initialize obstacle struct
@@ -67,12 +82,6 @@ void initObst() {
     }
 }
 
-// initialize laser (it is a + shape)
-void initLaser() {
-    laser.x = 68; // three across
-    laser.y = 10; // three high
-}
-
 // updating game
 void updateGame() {
 
@@ -92,6 +101,8 @@ void updateGame() {
     } else {
         spawned = 0;
     }
+
+    updateBG();
 }
 
 // update player struct
@@ -118,7 +129,45 @@ void updatePlayer() {
         }
     }
 
+    // lose if player is pushed off (collides with) the bottom of the screen 
+    if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
+        REG_SND2CNT = DMG_ENV_VOL(5) |
+                            DMG_STEP_TIME(7);
+        REG_SND2FREQ = NOTE_C4 | SND_RESET;
+        score = -1;
+    }
+
     // updating player position 
     player.oldx = player.x;
     player.x += player.xvel;
+    player.oldy = player.y;
+    player.y += player.yvel;
+}
+
+void updateLaser() {
+
+    // move back and forth in middle lane
+    if (laser.x <= 64) {
+        laser.xvel = 1;
+    }
+    if (laser.x + laser.height >= 72) {
+        laser.xvel = -1;
+    }
+
+    // update position based on speed
+    laser.oldx = laser.x;
+    laser.x += laser.xvel;
+}
+
+// updates obstacles
+void updateObst(OBST* o) {
+    if (o -> active) {
+        if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o -> height)) {
+            player.y--;
+        }
+        // if player passes obstacle, increment score
+        if (player.y > (o -> y + o -> height)) {
+            score++;
+        }
+    }
 }
