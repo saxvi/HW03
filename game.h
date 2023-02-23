@@ -42,7 +42,7 @@ typedef struct {
 #define bufferWidth 7
 #define borderWidth 52
 #define floorWidth  137
-#define numObstacles 5
+#define numObstacles 4
 
 // variables
 extern PLAYER player;

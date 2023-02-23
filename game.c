@@ -55,6 +55,7 @@ void initObst() {
         obstacles[i].width = 41;
         obstacles[i].height = 41;
         obstacles[i].active = 1;
+        obstacles[i].yvel = -1;
         obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
 
         int colorPicker = rand() % 4;
@@ -167,7 +168,27 @@ void updateObst(OBST* o) {
         }
         // if player passes obstacle, increment score
         if (player.y > (o -> y + o -> height)) {
+            REG_SND2CNT = DMG_ENV_VOL(2) |
+                            DMG_STEP_TIME(5);
+            REG_SND2FREQ = NOTE_E4 | SND_RESET;
             score++;
         }
+
+        // update position
+        o->oldy = o->y;
+        o->x += o->yvel;
+
+        // if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) {
+        //     o -> y = 0;
+        // }
+    }
+}
+
+// draw the game!
+void drawGame() {
+    drawPlayer();
+    drawBall();
+    for (int i = 0; i < numObstacles; i++) {
+        drawBlocks(&obstacles[i]);
     }
 }
