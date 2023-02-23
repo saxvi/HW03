@@ -66,6 +66,7 @@ int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width
 #define TEAL COLOR(0,16,16)
 #define FOREST COLOR(6, 14, 11)
 #define PEENK COLOR(25, 18, 14)
+#define BROWN COLOR(11, 6, 3)
 
 
 // Mode 3 Drawing Functions

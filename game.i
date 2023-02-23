@@ -45,7 +45,7 @@ typedef struct {
 # 48 "game.h"
 extern PLAYER player;
 extern DOT laser;
-extern OBST obstacles[5];
+extern OBST obstacles[4];
 extern int score;
 
 
@@ -193,7 +193,7 @@ OBST obstacle;
 DOT laser;
 
 
-OBST obstacles[5];
+OBST obstacles[4];
 
 
 int score;
@@ -217,6 +217,7 @@ void initPlayer() {
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
+    player.yvel = 0;
     player.height = 31;
     player.width = 41;
     player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
@@ -235,10 +236,11 @@ void initLaser() {
 
 
 void initObst() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         obstacles[i].width = 41;
         obstacles[i].height = 41;
         obstacles[i].active = 1;
+        obstacles[i].yvel = -1;
         obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
 
         int colorPicker = rand() % 4;
@@ -272,7 +274,7 @@ void updateGame() {
     updatePlayer();
     updateLaser();
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         OBST *o = &obstacles[i];
         updateObst(o);
     }
@@ -314,8 +316,18 @@ void updatePlayer() {
     }
 
 
+    if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
+        *(volatile u16*)0x04000068 = (((5) & 15) << 12) |
+                            (((7) & 7) << 8);
+        *(volatile u16*)0x0400006C = NOTE_C4 | (1<<15);
+        score = -1;
+    }
+
+
     player.oldx = player.x;
     player.x += player.xvel;
+    player.oldy = player.y;
+    player.y += player.yvel;
 }
 
 void updateLaser() {
@@ -331,4 +343,68 @@ void updateLaser() {
 
     laser.oldx = laser.x;
     laser.x += laser.xvel;
+}
+
+
+void updateObst(OBST* o) {
+    if (o -> active) {
+        if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o -> height)) {
+            player.y--;
+        }
+
+        if (player.y > (o -> y + o -> height)) {
+            *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
+                            (((5) & 7) << 8);
+            *(volatile u16*)0x0400006C = NOTE_E4 | (1<<15);
+            score++;
+        }
+
+
+        o->oldy = o->y;
+        o->x += o->yvel;
+
+
+
+
+    }
+}
+
+
+void drawGame() {
+    drawPlayer();
+    drawLaser();
+    for (int i = 0; i < 4; i++) {
+        drawObst(&obstacles[i]);
+    }
+}
+
+
+void drawPlayer() {
+    drawRect(player.oldx, player.oldy, player.width, player.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x, player.y, player.width, player.height, player.color);
+}
+
+
+void drawLaser() {
+    drawRect(laser.x, laser.y, laser.height, laser.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(laser.x - 1, laser.y, laser.height, laser.width, laser.color);
+    drawRect(laser.x, laser.y - 1, laser.width, laser.height, laser.color);
+}
+
+drawObst(OBST* o) {
+    if (o -> active) {
+        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
+    }
+}
+
+
+void newObst() {
+    spawned = 1;
+    for (int i = 0; i < 4; i++) {
+        if (obstacles[i].active == 0) {
+            obstacles[i].active = 1;
+        }
+        break;
+    }
 }
