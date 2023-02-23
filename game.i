@@ -252,7 +252,7 @@ void initObst() {
         obstacles[i].active = 1;
         obstacles[i].yvel = (rand() % 2) + 1;
         obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
-        obstacles[i].y = (i * 80);
+        obstacles[i].y = (i * 100);
 
         int colorPicker = rand() % 3;
         switch (colorPicker) {
@@ -353,31 +353,27 @@ void updateLaser() {
 
 
 void updateObst(OBST* o) {
-    if (o -> active) {
 
-        if (collision(player.x, player.y, player.width, player.height, o -> x - o->height, o -> y, o -> width, o -> height)) {
-            player.y++;
-        }
-
-
-
-        if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) {
-
-
-            *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
-                            (((2) & 7) << 8);
-            *(volatile u16*)0x0400006C = NOTE_G5 | (1<<15);
-            score++;
-
-
-            o -> y = 0;
-            o->yvel = (rand() % 2) + 1;
-        }
-
-        o->oldx = o->x;
-        o->oldy = o->y;
-        o->y += o->yvel;
+    if (collision(player.x, player.y, player.width, player.height, o -> x - o -> height, o -> y, o -> width, o->height)) {
+        player.y++;
     }
+
+    if (collision(o -> x, o -> y, o -> width, 1, 52, 160, 137, 1)) {
+
+
+        *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
+                        (((2) & 7) << 8);
+        *(volatile u16*)0x0400006C = NOTE_G5 | (1<<15);
+        score++;
+
+
+        o -> y = 0;
+        o->yvel = (rand() % 2) + 1;
+    }
+
+    o->oldx = o->x;
+    o->oldy = o->y;
+    o->y += o->yvel;
 }
 
 
@@ -419,11 +415,8 @@ void drawLaser() {
 
 drawObst(OBST* o) {
     for (int i = 0; i < 3; i++) {
-
-            drawRect(o -> oldx, o -> oldy, o -> width + 1, o -> height + 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
-
-            drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
-
+        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
 }
 

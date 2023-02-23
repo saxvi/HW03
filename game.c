@@ -66,7 +66,7 @@ void initObst() {
         obstacles[i].active = 1;
         obstacles[i].yvel = (rand() % 2) + 1;
         obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
-        obstacles[i].y = (i * 80);
+        obstacles[i].y = (i * 100);
 
         int colorPicker = rand() % 3;
         switch (colorPicker) {
@@ -167,31 +167,27 @@ void updateLaser() {
 
 // updates obstacles
 void updateObst(OBST* o) {
-    if (o -> active) {
 
-        if (collision(player.x, player.y, player.width, player.height, o -> x - o->height, o -> y, o -> width, o -> height)) {
-            player.y++;
-        }    
+    if (collision(player.x, player.y, player.width, player.height, o -> x - o -> height, o -> y, o -> width, o->height)) {
+        player.y++;
+    }    
 
+    if (collision(o -> x, o -> y, o -> width, 1, 52, 160, 137, 1)) { // if obst hit the bottom of the screen
 
+        // add a point for every obst passed
+        REG_SND2CNT = DMG_ENV_VOL(2) |
+                        DMG_STEP_TIME(2);
+        REG_SND2FREQ = NOTE_G5 | SND_RESET;
+        score++;
 
-        if (collision(o -> x, o -> y, o -> width, o -> height, 52, 160, 137, 1)) { // if they hit the bottom of the screen
-
-            // add a point for every obst passed
-            REG_SND2CNT = DMG_ENV_VOL(2) |
-                            DMG_STEP_TIME(2);
-            REG_SND2FREQ = NOTE_G5 | SND_RESET;
-            score++;
-
-            // respawn obst at top of screen
-            o -> y = 0;
-            o->yvel = (rand() % 2) + 1;
-        }
-        // update position
-        o->oldx = o->x;
-        o->oldy = o->y;
-        o->y += o->yvel;
+        // respawn obst at top of screen
+        o -> y = 0;
+        o->yvel = (rand() % 2) + 1;
     }
+    // update position
+    o->oldx = o->x;
+    o->oldy = o->y;
+    o->y += o->yvel;
 }
 
 // updates background
@@ -233,11 +229,8 @@ void drawLaser() {
 
 drawObst(OBST* o) {
     for (int i = 0; i < numObstacles; i++) {
-    
-            drawRect(o -> oldx, o -> oldy, o -> width + 1, o -> height + 1, BRULEE);
-
-            drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
-    
+        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, BRULEE);
+        drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
 }
 
