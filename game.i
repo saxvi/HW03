@@ -249,7 +249,7 @@ void initObst() {
         obstacles[i].width = 41;
         obstacles[i].height = 41;
         obstacles[i].active = 1;
-        obstacles[i].yvel = -1;
+        obstacles[i].yvel = 1;
         obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
 
         int colorPicker = rand() % 4;

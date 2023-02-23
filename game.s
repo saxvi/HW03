@@ -195,14 +195,13 @@ initObst:
 	ldr	r7, .L31+12
 	ldr	r6, .L31+16
 .L28:
-	mov	r3, #41
-	mov	r1, #1
-	mvn	r2, #0
-	str	r3, [r9, #20]
-	str	r3, [r9, #24]
+	mov	r3, #1
+	mov	r2, #41
+	str	r3, [r9, #32]
+	str	r3, [r9, #16]
 	str	r10, [r9]
-	str	r1, [r9, #32]
-	str	r2, [r9, #16]
+	str	r2, [r9, #20]
+	str	r2, [r9, #24]
 	mov	lr, pc
 	bx	r5
 	rsbs	r3, r0, #0
