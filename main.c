@@ -180,7 +180,8 @@ void game() {
         goToLose();
     }
 
-    if (BUTTON_PRESSED(BUTTON_A) || (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height))) {
+  // for debuggung only no cheating lol //
+    if (/*BUTTON_PRESSED(BUTTON_A) || */(collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height))) {
         goToWin();
     }
 }
