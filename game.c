@@ -11,6 +11,7 @@ DOT powerup;
 // utility 
 OBST obstacles[numObstacles];
 int spawned;
+int t;
 
 // background vars
 int lineY = 10;
@@ -20,6 +21,7 @@ int lineyvel = 1;
 
 //score
 extern int score;
+extern char temp;
 
 // initialize game
 void initGame() {
@@ -29,9 +31,8 @@ void initGame() {
     initPlayer();
     initLaser();
     initObst();
+    initPowerup();
 }
-
-// initialize background
 
 // initialize player struct
 void initPlayer() {
@@ -41,8 +42,8 @@ void initPlayer() {
     player.oldy = player.y;
     player.xvel = 0;
     player.yvel = 0;
-    player.height = 31;
-    player.width = 20;
+    player.height = 20;
+    player.width = 15;
     player.color = BLUE;
     player.powerup = 0;
 }
@@ -58,15 +59,27 @@ void initLaser() {
     laser.color = RED;
 }
 
+void initPowerup() {
+    powerup.x = borderWidth + (((rand() % 3) + 1) * 41);
+    powerup.y = 20;
+    powerup.oldx = powerup.x;
+    powerup.oldy = powerup.y;
+    powerup.yvel = 1;
+    powerup.height = 5;
+    powerup.width = 5;
+    powerup.color = TEAL;
+    powerup.show = 0;
+}
+
 // initialize obstacle struct
 void initObst() {
     for (int i = 0; i < numObstacles; i++) {
         obstacles[i].width = 41;
-        obstacles[i].height = 41;
+        obstacles[i].height = 35;
         obstacles[i].active = 1;
-        obstacles[i].yvel = (rand() % 2) + 1;
-        obstacles[i].x = borderWidth + (bufferWidth * i) + (obstacles[i].width * i);
-        obstacles[i].y = (i * 100);
+        obstacles[i].yvel = (rand() % 4) + 1;
+        obstacles[i].x = borderWidth + (bufferWidth * i) + (41 * i);
+        obstacles[i].y = (0);
 
         int colorPicker = rand() % 3;
         switch (colorPicker) {
@@ -81,32 +94,28 @@ void initObst() {
                 break;
         }
     }
-
-    ;
-
-    // for (int i = 1; i < 3; i++) {
-    //     obstacles[i].y = (i) * obstacles[i].height;
-    // }
 }
 
 // updating game
 void updateGame() {
 
-    updatePlayer();
-
     for (int i = 0; i < numObstacles; i++) {
-        OBST *o = &obstacles[i];
-        updateObst(o);
+        updateObst(&obstacles[i]);
     }
 
-    if (score > 0) {
-        if (!spawned) {
-            newObst();
-            spawned = 1;
-        }
-    } else {
-        spawned = 0;
+    updatePlayer();
+    if (!(player.powerup)) {
+        updatePowerup();
     }
+
+    // if (score > 0) {
+    //     if (!spawned) {
+    //         newObst();
+    //         spawned = 1;
+    //     }
+    // } else {
+    //     spawned = 0;
+    // }
 
     updateBG();
 }
@@ -115,31 +124,34 @@ void updateGame() {
 void updatePlayer() {
 
     // movement and buttons
-    if (player.powerup == 0) { // standard movement
-        if (BUTTON_HELD(BUTTON_LEFT) && (player.x - 1 > 52)) {
-            player.xvel = -3;
-        }
-        else if (BUTTON_HELD(BUTTON_RIGHT) && (player.x + player.width < 52 + floorWidth - 1)) {
-            player.xvel = 3;
-        } else {
-            player.xvel = 0;
-        }
-    } else if (player.powerup == 1) { // fast moving, tap instead of hold
-                if (BUTTON_PRESSED(BUTTON_LEFT) && (player.x - 1 > 0)) {
-            player.xvel = -(41 + bufferWidth);
-        }
-        else if (BUTTON_PRESSED(BUTTON_RIGHT) && (player.x + player.width < SCREENWIDTH - 1)) {
-            player.xvel = (41 + bufferWidth);
-        } else {
-            player.xvel = 0;
-        }
+    if (BUTTON_HELD(BUTTON_LEFT) && (player.x - 1 > 52)) {
+        player.xvel = -3;
+    }
+    else if (BUTTON_HELD(BUTTON_RIGHT) && (player.x + player.width < 52 + floorWidth - 1)) {
+        player.xvel = 3;
+    } else {
+        player.xvel = 0;
+    }
+
+    // if player collects the powerup, return to original y-location 
+    if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
+        player.powerup = 1;
+        player.yvel = -3;
+        player.color = CYAN;
+    }
+
+    if (player.y == 100) {
+        player.powerup = 0;
+        player.color = BLUE;
+
     }
 
     // lose if player is pushed off (collides with) the bottom of the screen 
-    if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
+    if (player.y > 160) {
         REG_SND2CNT = DMG_ENV_VOL(5) |
                             DMG_STEP_TIME(3);
         REG_SND2FREQ = NOTE_C4 | SND_RESET;
+        temp = score;
         score = -1;
     }
 
@@ -148,6 +160,27 @@ void updatePlayer() {
     player.x += player.xvel;
     player.oldy = player.y;
     player.y += player.yvel;
+
+    // boundary
+    if (player.y <= 100) {
+        player.yvel = 0;
+    }
+}
+
+void updatePowerup() {
+    
+        powerup.oldx = powerup.x;
+        powerup.oldy = powerup.y;
+        powerup.y += powerup.yvel;
+
+        if (player.y < 100) {
+            drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
+        }
+        
+        if (collision(powerup.x, powerup.y, powerup.width, powerup.height, player.x, player.y, player.width, player.height)) {
+            player.powerup = 1;
+            drawRect(powerup.x, powerup.y, powerup.width, powerup.height, BRULEE);
+        }
 }
 
 void updateLaser() {
@@ -168,26 +201,31 @@ void updateLaser() {
 // updates obstacles
 void updateObst(OBST* o) {
 
-    if (collision(player.x, player.y, player.width, player.height, o -> x - o -> height, o -> y, o -> width, o->height)) {
-        player.y++;
-    }    
+    // update position
+    o->oldx = o->x;
+    o->oldy = o->y;
+    o->y += o->yvel;
 
     if (collision(o -> x, o -> y, o -> width, 1, 52, 160, 137, 1)) { // if obst hit the bottom of the screen
 
         // add a point for every obst passed
         REG_SND2CNT = DMG_ENV_VOL(2) |
-                        DMG_STEP_TIME(2);
+                      DMG_STEP_TIME(2);
         REG_SND2FREQ = NOTE_G5 | SND_RESET;
         score++;
 
+    
         // respawn obst at top of screen
         o -> y = 0;
-        o->yvel = (rand() % 2) + 1;
+        o -> yvel = (rand() % 2) + 1;
+
+        
     }
-    // update position
-    o->oldx = o->x;
-    o->oldy = o->y;
-    o->y += o->yvel;
+
+
+    if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o->height)) {
+        player.y += o->yvel;
+    }    
 }
 
 // updates background
@@ -204,19 +242,32 @@ void updateBG() {
 // draw the game!
 void drawGame() {
     
-    drawBG();
-
-    drawPlayer();
-    drawLaser();
     for (int i = 0; i < numObstacles; i++) {
         drawObst(&obstacles[i]);
     }
+
+    drawBG();
+
+    drawPlayer();
+
+    drawPowerup();
+
+    drawLaser();
+    waitForVBlank();
+
 }
 
 // draw player
 void drawPlayer() {
     drawRect(player.oldx, player.oldy, player.width, player.height, BRULEE);
     drawRect(player.x, player.y, player.width, player.height, player.color);
+    //drawRect(player.oldx, player.oldy, player.width, player.height, BRULEE);
+
+}
+
+void drawPowerup() {
+    drawRect(powerup.oldx, powerup.oldy - 1, powerup.width, powerup.height, BRULEE);
+    drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
 }
 
 // draw laser
@@ -227,9 +278,9 @@ void drawLaser() {
     drawRect(laser.x, laser.y - 1, laser.width, laser.height, laser.color);
 }
 
-drawObst(OBST* o) {
+void drawObst(OBST* o) {
     for (int i = 0; i < numObstacles; i++) {
-        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, BRULEE);
+        drawRect(o->x, o -> oldy, o -> width, o -> height, BRULEE);
         drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
 }
