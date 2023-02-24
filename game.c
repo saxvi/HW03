@@ -178,6 +178,15 @@ void updatePowerup() {
         if (collision(powerup.x, powerup.y, powerup.width, powerup.height, player.x, player.y, player.width, player.height)) {
             drawRect(powerup.x, powerup.y, powerup.width, powerup.height, BRULEE);
         }
+
+        if (powerup.y == 162) {
+            powerup.y = 0;
+            powerup.x -= 41;
+        }
+
+        if (powerup.x < 52) {
+            powerup.x = borderWidth + (((rand() % 3) + 1) * 41);
+        }
 }
 
 void updateLaser() {

@@ -32,6 +32,8 @@ void srand();
 int rSeed;
 
 // text buffer
+char temp2[1];
+
 char buffer[41];
 char hscore[41];
 char temp;
@@ -48,12 +50,14 @@ void goToPause();
 void pause();
 void goToLose();
 void lose();
+void goToWin();
+void win();
 
 int main() {
 
     mgba_open();
     mgba_printf("debugging ok");
-    
+
     initialize();
 
     while (1) {
@@ -77,6 +81,9 @@ int main() {
                 break;
             case LOSE:
                 lose();
+                break;
+            case WIN:
+                win();
                 break;
         }
         t++;
@@ -152,6 +159,8 @@ void goToGame() {
 // runs game state
 void game() {
     updateGame();
+    sprintf(temp2, "%d", powerup.y);
+    mgba_printf(temp2);
 
     sprintf(buffer, "%d", score);
     sprintf(hscore, "%d", temp);
@@ -167,6 +176,10 @@ void game() {
 
     if (score == -1) {
         goToLose();
+    }
+
+    if (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height)) {
+        goToWin();
     }
 }
 
@@ -205,6 +218,27 @@ void goToLose() {
 
 // runs lose state
 void lose() {
+    waitForVBlank();
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToStart();
+    }
+}
+
+// set up win
+void goToWin() {
+    fillScreen(FOREST);
+
+    drawString(85, 48, "you win!", PEENK);
+    drawString(50, 60, "you caught the laser!", PEENK);
+
+    drawString(55, 78, "obstacles passed: ", BRULEE);
+    drawString(125, 90, hscore, BRULEE);
+
+    drawString(40, 108, "press start to play again", BRULEE);
+}
+
+// runs win state
+void win() {
     waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();

@@ -273,6 +273,7 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
+    int powerup;
 } PLAYER;
 
 
@@ -293,17 +294,19 @@ typedef struct {
     int x;
     int y;
     int xvel;
+    int yvel;
     int oldx;
     int oldy;
     int width;
     int height;
     unsigned short color;
+    int show;
 } DOT;
-# 48 "game.h"
+# 51 "game.h"
 extern PLAYER player;
 extern DOT laser;
 extern DOT powerup;
-extern OBST obstacles[3];
+extern OBST obstacles[2];
 extern int score;
 
 
@@ -1474,6 +1477,8 @@ void srand();
 int rSeed;
 
 
+char temp2[1];
+
 char buffer[41];
 char hscore[41];
 char temp;
@@ -1490,8 +1495,13 @@ void goToPause();
 void pause();
 void goToLose();
 void lose();
+void goToWin();
+void win();
 
 int main() {
+
+    mgba_open();
+    mgba_printf("debugging ok");
 
     initialize();
 
@@ -1516,6 +1526,9 @@ int main() {
                 break;
             case LOSE:
                 lose();
+                break;
+            case WIN:
+                win();
                 break;
         }
         t++;
@@ -1574,9 +1587,9 @@ void start() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         srand(time(
-# 134 "main.c" 3 4
+# 144 "main.c" 3 4
                   ((void *)0)
-# 134 "main.c"
+# 144 "main.c"
                       ));
         goToGame();
         initGame();
@@ -1595,6 +1608,8 @@ void goToGame() {
 
 void game() {
     updateGame();
+    sprintf(temp2, "%d", powerup.y);
+    mgba_printf(temp2);
 
     sprintf(buffer, "%d", score);
     sprintf(hscore, "%d", temp);
@@ -1610,6 +1625,10 @@ void game() {
 
     if (score == -1) {
         goToLose();
+    }
+
+    if (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height)) {
+        goToWin();
     }
 }
 
@@ -1648,6 +1667,27 @@ void goToLose() {
 
 
 void lose() {
+    waitForVBlank();
+    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
+        goToStart();
+    }
+}
+
+
+void goToWin() {
+    fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
+
+    drawString(85, 48, "you win!", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(50, 60, "you caught the laser!", ((25&31) | (18&31) << 5 | (14&31) << 10));
+
+    drawString(55, 78, "obstacles passed: ", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(125, 90, hscore, ((25&31) | (22&31) << 5 | (17&31) << 10));
+
+    drawString(40, 108, "press start to play again", ((25&31) | (22&31) << 5 | (17&31) << 10));
+}
+
+
+void win() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToStart();
