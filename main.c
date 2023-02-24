@@ -14,6 +14,7 @@ extern int t = 0;
 int skipFrames = 2;
 
 int score;
+int highscore;
 
 // states
 enum
@@ -32,6 +33,8 @@ int rSeed;
 
 // text buffer
 char buffer[41];
+char hscore[41];
+char temp;
 
 // prototypes
 void initialize();
@@ -54,6 +57,7 @@ int main() {
          if (t % skipFrames == 0) {
             updateLaser();
         }
+        
         oldButtons = buttons;
         buttons = REG_BUTTONS;
 
@@ -147,7 +151,7 @@ void game() {
     updateGame();
 
     sprintf(buffer, "%d", score);
-    waitForVBlank();
+    sprintf(hscore, "%d", temp);
 
     drawRect(2, 41, 50, 8, BROWN);
     drawString(2, 41, buffer, FOREST);
@@ -188,7 +192,10 @@ void pause() {
 void goToLose() {
     fillScreen(FOREST);
     drawString(85, 48, "you lose!", PEENK);
-    drawString(45, 68, "press start to try again", BRULEE);
+    drawString(85, 68, "score: ", PEENK);
+    drawString(125, 68, hscore, PEENK);
+
+    drawString(45, 88, "press start to try again", BRULEE);
     waitForVBlank();
     state = LOSE;
 }

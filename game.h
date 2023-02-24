@@ -27,16 +27,18 @@ typedef struct {
     int active;
 } OBST;
 
-// laser struct
+// small things struct
 typedef struct {
     int x;
     int y;
     int xvel;
+    int yvel;
     int oldx;
     int oldy;
     int width;
     int height;
-    unsigned short color;    
+    unsigned short color;
+    int show;
 } DOT;
 
 // constants
@@ -48,6 +50,7 @@ typedef struct {
 // variables
 extern PLAYER player;
 extern DOT laser;
+extern DOT powerup;
 extern OBST obstacles[numObstacles];
 extern int score;
 
@@ -55,12 +58,18 @@ extern int score;
 void initGame();
 void initPlayer();
 void initObst();
+void initPowerup();
+
 void updateGame();
 void updatePlayer();
+void updatePowerup();
 void updateObst(OBST* o);
 void updateBG();
+
 void drawGame();
 void drawPlayer();
+void drawPowerup();
 void drawObst(OBST* o);
+
 void newObst();
 

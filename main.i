@@ -273,7 +273,6 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
-    int powerup;
 } PLAYER;
 
 
@@ -300,9 +299,10 @@ typedef struct {
     int height;
     unsigned short color;
 } DOT;
-# 49 "game.h"
+# 48 "game.h"
 extern PLAYER player;
 extern DOT laser;
+extern DOT powerup;
 extern OBST obstacles[3];
 extern int score;
 
@@ -310,13 +310,19 @@ extern int score;
 void initGame();
 void initPlayer();
 void initObst();
+void initPowerup();
+
 void updateGame();
 void updatePlayer();
+void updatePowerup();
 void updateObst(OBST* o);
 void updateBG();
+
 void drawGame();
 void drawPlayer();
+void drawPowerup();
 void drawObst(OBST* o);
+
 void newObst();
 # 5 "main.c" 2
 # 1 "sound.h" 1
@@ -1450,6 +1456,7 @@ extern int t = 0;
 int skipFrames = 2;
 
 int score;
+int highscore;
 
 
 enum
@@ -1468,6 +1475,8 @@ int rSeed;
 
 
 char buffer[41];
+char hscore[41];
+char temp;
 
 
 void initialize();
@@ -1490,6 +1499,7 @@ int main() {
          if (t % skipFrames == 0) {
             updateLaser();
         }
+
         oldButtons = buttons;
         buttons = (*(volatile unsigned short *)0x04000130);
 
@@ -1564,9 +1574,9 @@ void start() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         srand(time(
-# 130 "main.c" 3 4
+# 134 "main.c" 3 4
                   ((void *)0)
-# 130 "main.c"
+# 134 "main.c"
                       ));
         goToGame();
         initGame();
@@ -1587,7 +1597,7 @@ void game() {
     updateGame();
 
     sprintf(buffer, "%d", score);
-    waitForVBlank();
+    sprintf(hscore, "%d", temp);
 
     drawRect(2, 41, 50, 8, ((11&31) | (6&31) << 5 | (3&31) << 10));
     drawString(2, 41, buffer, ((6&31) | (14&31) << 5 | (11&31) << 10));
@@ -1628,7 +1638,10 @@ void pause() {
 void goToLose() {
     fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
     drawString(85, 48, "you lose!", ((25&31) | (18&31) << 5 | (14&31) << 10));
-    drawString(45, 68, "press start to try again", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(85, 68, "score: ", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(125, 68, hscore, ((25&31) | (18&31) << 5 | (14&31) << 10));
+
+    drawString(45, 88, "press start to try again", ((25&31) | (22&31) << 5 | (17&31) << 10));
     waitForVBlank();
     state = LOSE;
 }

@@ -37,15 +37,18 @@ typedef struct {
     int x;
     int y;
     int xvel;
+    int yvel;
     int oldx;
     int oldy;
     int width;
     int height;
     unsigned short color;
+    int show;
 } DOT;
-# 49 "game.h"
+# 51 "game.h"
 extern PLAYER player;
 extern DOT laser;
+extern DOT powerup;
 extern OBST obstacles[3];
 extern int score;
 
@@ -53,13 +56,19 @@ extern int score;
 void initGame();
 void initPlayer();
 void initObst();
+void initPowerup();
+
 void updateGame();
 void updatePlayer();
+void updatePowerup();
 void updateObst(OBST* o);
 void updateBG();
+
 void drawGame();
 void drawPlayer();
+void drawPowerup();
 void drawObst(OBST* o);
+
 void newObst();
 # 2 "game.c" 2
 # 1 "gba.h" 1
@@ -197,6 +206,7 @@ DOT powerup;
 
 OBST obstacles[3];
 int spawned;
+int t;
 
 
 int lineY = 10;
@@ -206,6 +216,7 @@ int lineyvel = 1;
 
 
 extern int score;
+extern char temp;
 
 
 void initGame() {
@@ -215,9 +226,8 @@ void initGame() {
     initPlayer();
     initLaser();
     initObst();
+    initPowerup();
 }
-
-
 
 
 void initPlayer() {
@@ -227,8 +237,8 @@ void initPlayer() {
     player.oldy = player.y;
     player.xvel = 0;
     player.yvel = 0;
-    player.height = 31;
-    player.width = 20;
+    player.height = 20;
+    player.width = 15;
     player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
     player.powerup = 0;
 }
@@ -244,15 +254,27 @@ void initLaser() {
     laser.color = ((31&31) | (0&31) << 5 | (0&31) << 10);
 }
 
+void initPowerup() {
+    powerup.x = 52 + (((rand() % 3) + 1) * 41);
+    powerup.y = 20;
+    powerup.oldx = powerup.x;
+    powerup.oldy = powerup.y;
+    powerup.yvel = 1;
+    powerup.height = 5;
+    powerup.width = 5;
+    powerup.color = ((0&31) | (16&31) << 5 | (16&31) << 10);
+    powerup.show = 0;
+}
+
 
 void initObst() {
     for (int i = 0; i < 3; i++) {
         obstacles[i].width = 41;
-        obstacles[i].height = 41;
+        obstacles[i].height = 35;
         obstacles[i].active = 1;
-        obstacles[i].yvel = (rand() % 2) + 1;
-        obstacles[i].x = 52 + (7 * i) + (obstacles[i].width * i);
-        obstacles[i].y = (i * 100);
+        obstacles[i].yvel = (rand() % 4) + 1;
+        obstacles[i].x = 52 + (7 * i) + (41 * i);
+        obstacles[i].y = (0);
 
         int colorPicker = rand() % 3;
         switch (colorPicker) {
@@ -267,33 +289,20 @@ void initObst() {
                 break;
         }
     }
-
-    ;
-
-
-
-
 }
 
 
 void updateGame() {
 
-    updatePlayer();
-
     for (int i = 0; i < 3; i++) {
-        OBST *o = &obstacles[i];
-        updateObst(o);
+        updateObst(&obstacles[i]);
     }
 
-    if (score > 0) {
-        if (!spawned) {
-            newObst();
-            spawned = 1;
-        }
-    } else {
-        spawned = 0;
+    updatePlayer();
+    if (!(player.powerup)) {
+        updatePowerup();
     }
-
+# 120 "game.c"
     updateBG();
 }
 
@@ -301,31 +310,34 @@ void updateGame() {
 void updatePlayer() {
 
 
-    if (player.powerup == 0) {
-        if ((~(buttons) & ((1<<5))) && (player.x - 1 > 52)) {
-            player.xvel = -3;
-        }
-        else if ((~(buttons) & ((1<<4))) && (player.x + player.width < 52 + 137 - 1)) {
-            player.xvel = 3;
-        } else {
-            player.xvel = 0;
-        }
-    } else if (player.powerup == 1) {
-                if ((!(~(oldButtons) & ((1<<5))) && (~(buttons) & ((1<<5)))) && (player.x - 1 > 0)) {
-            player.xvel = -(41 + 7);
-        }
-        else if ((!(~(oldButtons) & ((1<<4))) && (~(buttons) & ((1<<4)))) && (player.x + player.width < 240 - 1)) {
-            player.xvel = (41 + 7);
-        } else {
-            player.xvel = 0;
-        }
+    if ((~(buttons) & ((1<<5))) && (player.x - 1 > 52)) {
+        player.xvel = -3;
+    }
+    else if ((~(buttons) & ((1<<4))) && (player.x + player.width < 52 + 137 - 1)) {
+        player.xvel = 3;
+    } else {
+        player.xvel = 0;
     }
 
 
-    if (collision(player.x, player.y, player.width, player.height, 52, 160, 137, 1)) {
+    if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
+        player.powerup = 1;
+        player.yvel = -3;
+        player.color = ((0&31) | (31&31) << 5 | (31&31) << 10);
+    }
+
+    if (player.y == 100) {
+        player.powerup = 0;
+        player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
+
+    }
+
+
+    if (player.y > 160) {
         *(volatile u16*)0x04000068 = (((5) & 15) << 12) |
                             (((3) & 7) << 8);
         *(volatile u16*)0x0400006C = NOTE_C4 | (1<<15);
+        temp = score;
         score = -1;
     }
 
@@ -334,6 +346,27 @@ void updatePlayer() {
     player.x += player.xvel;
     player.oldy = player.y;
     player.y += player.yvel;
+
+
+    if (player.y <= 100) {
+        player.yvel = 0;
+    }
+}
+
+void updatePowerup() {
+
+        powerup.oldx = powerup.x;
+        powerup.oldy = powerup.y;
+        powerup.y += powerup.yvel;
+
+        if (player.y < 100) {
+            drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
+        }
+
+        if (collision(powerup.x, powerup.y, powerup.width, powerup.height, player.x, player.y, player.width, player.height)) {
+            player.powerup = 1;
+            drawRect(powerup.x, powerup.y, powerup.width, powerup.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+        }
 }
 
 void updateLaser() {
@@ -354,26 +387,31 @@ void updateLaser() {
 
 void updateObst(OBST* o) {
 
-    if (collision(player.x, player.y, player.width, player.height, o -> x - o -> height, o -> y, o -> width, o->height)) {
-        player.y++;
-    }
+
+    o->oldx = o->x;
+    o->oldy = o->y;
+    o->y += o->yvel;
 
     if (collision(o -> x, o -> y, o -> width, 1, 52, 160, 137, 1)) {
 
 
         *(volatile u16*)0x04000068 = (((2) & 15) << 12) |
-                        (((2) & 7) << 8);
+                      (((2) & 7) << 8);
         *(volatile u16*)0x0400006C = NOTE_G5 | (1<<15);
         score++;
 
 
-        o -> y = 0;
-        o->yvel = (rand() % 2) + 1;
+
+        o -> x += 7;
+
+
+
     }
 
-    o->oldx = o->x;
-    o->oldy = o->y;
-    o->y += o->yvel;
+
+    if (collision(player.x, player.y, player.width, player.height, o -> x, o -> y, o -> width, o->height)) {
+        player.y += o->yvel;
+    }
 }
 
 
@@ -390,19 +428,32 @@ void updateBG() {
 
 void drawGame() {
 
-    drawBG();
-
-    drawPlayer();
-    drawLaser();
     for (int i = 0; i < 3; i++) {
         drawObst(&obstacles[i]);
     }
+
+    drawBG();
+
+    drawPlayer();
+
+    drawPowerup();
+
+    drawLaser();
+    waitForVBlank();
+
 }
 
 
 void drawPlayer() {
     drawRect(player.oldx, player.oldy, player.width, player.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
     drawRect(player.x, player.y, player.width, player.height, player.color);
+
+
+}
+
+void drawPowerup() {
+    drawRect(powerup.oldx, powerup.oldy - 1, powerup.width, powerup.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
 }
 
 
@@ -413,9 +464,9 @@ void drawLaser() {
     drawRect(laser.x, laser.y - 1, laser.width, laser.height, laser.color);
 }
 
-drawObst(OBST* o) {
+void drawObst(OBST* o) {
     for (int i = 0; i < 3; i++) {
-        drawRect(o -> oldx, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+        drawRect(o->x, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
         drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
 }
