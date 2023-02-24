@@ -49,7 +49,7 @@ typedef struct {
 extern PLAYER player;
 extern DOT laser;
 extern DOT powerup;
-extern OBST obstacles[3];
+extern OBST obstacles[2];
 extern int score;
 
 
@@ -204,7 +204,7 @@ DOT laser;
 DOT powerup;
 
 
-OBST obstacles[3];
+OBST obstacles[2];
 int spawned;
 int t;
 
@@ -268,7 +268,7 @@ void initPowerup() {
 
 
 void initObst() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         obstacles[i].width = 41;
         obstacles[i].height = 35;
         obstacles[i].active = 1;
@@ -294,7 +294,7 @@ void initObst() {
 
 void updateGame() {
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         updateObst(&obstacles[i]);
     }
 
@@ -321,13 +321,11 @@ void updatePlayer() {
 
 
     if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
-        player.powerup = 1;
         player.yvel = -3;
         player.color = ((0&31) | (31&31) << 5 | (31&31) << 10);
     }
 
     if (player.y == 100) {
-        player.powerup = 0;
         player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
 
     }
@@ -357,14 +355,13 @@ void updatePowerup() {
 
         powerup.oldx = powerup.x;
         powerup.oldy = powerup.y;
-        powerup.y += powerup.yvel;
+        powerup.y += 2;
 
-        if (player.y < 100) {
+        if (player.y > 100) {
             drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
         }
 
         if (collision(powerup.x, powerup.y, powerup.width, powerup.height, player.x, player.y, player.width, player.height)) {
-            player.powerup = 1;
             drawRect(powerup.x, powerup.y, powerup.width, powerup.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
         }
 }
@@ -402,8 +399,8 @@ void updateObst(OBST* o) {
 
 
 
-        o -> x += 7;
-
+        o -> y = 0;
+        o -> yvel = (rand() % 2) + 1;
 
 
     }
@@ -428,7 +425,7 @@ void updateBG() {
 
 void drawGame() {
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         drawObst(&obstacles[i]);
     }
 
@@ -465,7 +462,7 @@ void drawLaser() {
 }
 
 void drawObst(OBST* o) {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         drawRect(o->x, o -> oldy, o -> width, o -> height, ((25&31) | (22&31) << 5 | (17&31) << 10));
         drawRect(o -> x, o -> y, o -> width, o -> height, o -> color);
     }
@@ -489,7 +486,7 @@ drawBG() {
 
 void newObst() {
     spawned = 1;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (obstacles[i].active == 0) {
             obstacles[i].active = 1;
         }

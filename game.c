@@ -135,13 +135,11 @@ void updatePlayer() {
 
     // if player collects the powerup, return to original y-location 
     if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
-        player.powerup = 1;
         player.yvel = -3;
         player.color = CYAN;
     }
 
     if (player.y == 100) {
-        player.powerup = 0;
         player.color = BLUE;
 
     }
@@ -171,14 +169,13 @@ void updatePowerup() {
     
         powerup.oldx = powerup.x;
         powerup.oldy = powerup.y;
-        powerup.y += powerup.yvel;
+        powerup.y += 2;
 
-        if (player.y < 100) {
+        if (player.y > 100) {
             drawRect(powerup.x, powerup.y, powerup.width, powerup.height, powerup.color);
         }
         
         if (collision(powerup.x, powerup.y, powerup.width, powerup.height, player.x, player.y, player.width, player.height)) {
-            player.powerup = 1;
             drawRect(powerup.x, powerup.y, powerup.width, powerup.height, BRULEE);
         }
 }

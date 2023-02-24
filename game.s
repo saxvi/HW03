@@ -133,62 +133,105 @@ initObst:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, r7, r8, r9, r10, lr}
-	mov	r9, #52
-	ldr	r8, .L21
-	ldr	r4, .L21+4
-	ldr	r5, .L21+8
-	ldr	r7, .L21+12
-	ldr	r6, .L21+16
-.L18:
 	mov	r1, #41
 	mov	r2, #35
 	mov	r3, #1
-	str	r1, [r8, #20]
-	str	r2, [r8, #24]
-	str	r3, [r8, #32]
+	push	{r4, r5, r6, lr}
+	ldr	r4, .L24
+	ldr	r5, .L24+4
+	str	r1, [r4, #20]
+	str	r2, [r4, #24]
+	str	r3, [r4, #32]
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	mov	r2, #0
+	mov	r1, #52
 	subs	r3, r2, r0
 	and	r3, r3, #3
 	and	r0, r0, #3
 	rsbpl	r0, r3, #0
 	add	r0, r0, #1
-	str	r2, [r8, #4]
-	str	r9, [r8]
-	str	r0, [r8, #16]
+	stm	r4, {r1, r2}
+	str	r0, [r4, #16]
 	mov	lr, pc
-	bx	r4
-	smull	r2, r3, r5, r0
+	bx	r5
+	ldr	r3, .L24+8
+	smull	r2, r3, r0, r3
 	sub	r3, r3, r0, asr #31
 	add	r3, r3, r3, lsl #1
 	sub	r3, r0, r3
 	cmp	r3, #1
-	strheq	r7, [r8, #28]	@ movhi
-	beq	.L17
+	beq	.L15
 	cmp	r3, #2
-	strheq	r6, [r8, #28]	@ movhi
-	beq	.L17
+	beq	.L16
 	cmp	r3, #0
-	ldreq	r3, .L21+20
-	strheq	r3, [r8, #28]	@ movhi
-.L17:
-	add	r9, r9, #48
-	cmp	r9, #196
-	add	r8, r8, #36
-	bne	.L18
-	pop	{r4, r5, r6, r7, r8, r9, r10, lr}
+	beq	.L23
+.L18:
+	mov	r1, #41
+	mov	r2, #35
+	mov	r3, #1
+	str	r1, [r4, #56]
+	str	r2, [r4, #60]
+	str	r3, [r4, #68]
+	mov	lr, pc
+	bx	r5
+	mov	r2, #0
+	mov	r1, #100
+	subs	r3, r2, r0
+	and	r3, r3, #3
+	and	r0, r0, #3
+	rsbpl	r0, r3, #0
+	add	r0, r0, #1
+	str	r2, [r4, #40]
+	str	r0, [r4, #52]
+	str	r1, [r4, #36]
+	mov	lr, pc
+	bx	r5
+	ldr	r3, .L24+8
+	smull	r2, r3, r0, r3
+	sub	r3, r3, r0, asr #31
+	add	r3, r3, r3, lsl #1
+	sub	r3, r0, r3
+	cmp	r3, #1
+	beq	.L19
+	cmp	r3, #2
+	beq	.L20
+	cmp	r3, #0
+	ldreq	r3, .L24+12
+	strheq	r3, [r4, #64]	@ movhi
+	pop	{r4, r5, r6, lr}
 	bx	lr
-.L22:
+.L15:
+	ldr	r3, .L24+16
+	strh	r3, [r4, #28]	@ movhi
+	b	.L18
+.L20:
+	ldr	r3, .L24+20
+	strh	r3, [r4, #64]	@ movhi
+	pop	{r4, r5, r6, lr}
+	bx	lr
+.L19:
+	ldr	r3, .L24+16
+	strh	r3, [r4, #64]	@ movhi
+	pop	{r4, r5, r6, lr}
+	bx	lr
+.L23:
+	ldr	r3, .L24+12
+	strh	r3, [r4, #28]	@ movhi
+	b	.L18
+.L16:
+	ldr	r3, .L24+20
+	strh	r3, [r4, #28]	@ movhi
+	b	.L18
+.L25:
 	.align	2
-.L21:
+.L24:
 	.word	obstacles
 	.word	rand
 	.word	1431655766
+	.word	11718
 	.word	13619
 	.word	16668
-	.word	11718
 	.size	initObst, .-initObst
 	.align	2
 	.global	initGame
@@ -211,9 +254,9 @@ initGame:
 	mov	r0, #10
 	mov	r5, #3
 	mov	r4, #1
-	ldr	r3, .L25
+	ldr	r3, .L28
 	str	r1, [r3]
-	ldr	r3, .L25+4
+	ldr	r3, .L28+4
 	str	r8, [r3, #28]
 	str	r7, [r3, #24]
 	strh	r6, [r3, #32]	@ movhi
@@ -224,7 +267,7 @@ initGame:
 	str	r1, [r3, #36]
 	str	r2, [r3, #8]
 	str	r2, [r3, #12]
-	ldr	r3, .L25+8
+	ldr	r3, .L28+8
 	str	r5, [r3, #28]
 	str	r4, [r3, #24]
 	strh	lr, [r3, #32]	@ movhi
@@ -235,9 +278,9 @@ initGame:
 	bl	initObst
 	pop	{r4, r5, r6, r7, r8, lr}
 	b	initPowerup
-.L26:
+.L29:
 	.align	2
-.L25:
+.L28:
 	.word	score
 	.word	player
 	.word	laser
@@ -253,25 +296,25 @@ updatePlayer:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, lr}
-	ldr	r3, .L38
+	ldr	r3, .L40
 	ldrh	r3, [r3]
-	ldr	r4, .L38+4
+	ldr	r4, .L40+4
 	tst	r3, #32
 	ldr	r0, [r4]
 	ldr	r2, [r4, #24]
 	sub	sp, sp, #20
-	bne	.L28
+	bne	.L31
 	cmp	r0, #53
 	mvngt	r3, #2
 	strgt	r3, [r4, #16]
-	ble	.L28
-.L29:
-	ldr	r3, .L38+8
+	ble	.L31
+.L32:
+	ldr	r3, .L40+8
 	add	ip, r3, #24
 	ldr	r1, [r3, #4]
 	ldm	ip, {ip, lr}
 	ldr	r3, [r3]
-	ldr	r5, .L38+12
+	ldr	r5, .L40+12
 	stmib	sp, {r1, ip, lr}
 	str	r3, [sp]
 	ldr	r1, [r4, #4]
@@ -280,30 +323,30 @@ updatePlayer:
 	bx	r5
 	cmp	r0, #0
 	mvnne	r2, #2
-	movne	r0, #1
+	ldrne	r1, .L40+16
 	movne	r3, r2
-	ldrne	r1, .L38+16
 	strne	r2, [r4, #20]
 	ldr	r2, [r4, #4]
 	ldreq	r3, [r4, #20]
-	strne	r0, [r4, #36]
 	strhne	r1, [r4, #32]	@ movhi
 	cmp	r2, #100
+	moveq	r1, #31744
+	strheq	r1, [r4, #32]	@ movhi
 	beq	.L37
 	cmp	r2, #160
-	ble	.L34
+	ble	.L37
 	mov	r0, #67108864
 	mov	r1, #21248
 	mvn	lr, #0
 	strh	r1, [r0, #104]	@ movhi
-	ldr	ip, .L38+20
-	ldr	r1, .L38+24
+	ldr	ip, .L40+20
+	ldr	r1, .L40+24
 	strh	ip, [r0, #108]	@ movhi
 	ldr	ip, [r1]
-	ldr	r0, .L38+28
+	ldr	r0, .L40+28
 	str	lr, [r1]
 	strb	ip, [r0]
-.L34:
+.L37:
 	add	r3, r2, r3
 	cmp	r3, #100
 	str	r3, [r4, #4]
@@ -319,27 +362,21 @@ updatePlayer:
 	@ sp needed
 	pop	{r4, r5, lr}
 	bx	lr
-.L28:
+.L31:
 	tst	r3, #16
-	bne	.L30
+	bne	.L33
 	add	r3, r0, r2
 	cmp	r3, #187
 	movle	r3, #3
 	strle	r3, [r4, #16]
-	ble	.L29
-.L30:
+	ble	.L32
+.L33:
 	mov	r3, #0
 	str	r3, [r4, #16]
-	b	.L29
-.L37:
-	mov	r0, #0
-	mov	r1, #31744
-	str	r0, [r4, #36]
-	strh	r1, [r4, #32]	@ movhi
-	b	.L34
-.L39:
+	b	.L32
+.L41:
 	.align	2
-.L38:
+.L40:
 	.word	buttons
 	.word	player
 	.word	powerup
@@ -360,22 +397,21 @@ updatePowerup:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, r6, lr}
-	ldr	r4, .L49
-	ldr	r5, .L49+4
+	ldr	r4, .L51
+	ldr	r5, .L51+4
 	ldr	r3, [r4, #4]
-	ldr	r1, [r4, #12]
 	ldr	ip, [r5, #4]
 	ldr	r0, [r4]
-	add	r1, r3, r1
+	add	r1, r3, #2
 	add	r2, r4, #24
-	cmp	ip, #99
+	cmp	ip, #100
 	str	r3, [r4, #20]
 	str	r1, [r4, #4]
 	str	r0, [r4, #16]
 	ldm	r2, {r2, r3}
 	sub	sp, sp, #16
-	ble	.L47
-.L41:
+	bgt	.L49
+.L43:
 	ldr	r6, [r5, #28]
 	str	ip, [sp, #4]
 	ldr	lr, [r5, #24]
@@ -383,18 +419,18 @@ updatePowerup:
 	str	r6, [sp, #12]
 	str	lr, [sp, #8]
 	str	ip, [sp]
-	ldr	r6, .L49+8
+	ldr	r5, .L51+8
 	mov	lr, pc
-	bx	r6
+	bx	r5
 	cmp	r0, #0
-	bne	.L48
+	bne	.L50
 	add	sp, sp, #16
 	@ sp needed
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L47:
+.L49:
 	ldrh	ip, [r4, #32]
-	ldr	r6, .L49+12
+	ldr	r6, .L51+12
 	str	ip, [sp]
 	mov	lr, pc
 	bx	r6
@@ -402,25 +438,23 @@ updatePowerup:
 	ldm	r4, {r0, r1}
 	ldm	r2, {r2, r3}
 	ldr	ip, [r5, #4]
-	b	.L41
-.L48:
-	mov	ip, #1
-	ldr	r2, .L49+16
+	b	.L43
+.L50:
+	ldr	r2, .L51+16
 	ldr	r3, [r4, #28]
 	str	r2, [sp]
 	ldr	r2, [r4, #24]
 	ldm	r4, {r0, r1}
-	ldr	r4, .L49+12
-	str	ip, [r5, #36]
+	ldr	r4, .L51+12
 	mov	lr, pc
 	bx	r4
 	add	sp, sp, #16
 	@ sp needed
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L50:
+.L52:
 	.align	2
-.L49:
+.L51:
 	.word	powerup
 	.word	player
 	.word	collision
@@ -438,7 +472,7 @@ updateLaser:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r3, .L55
+	ldr	r3, .L57
 	ldr	r2, [r3]
 	cmp	r2, #110
 	movle	r1, #1
@@ -454,9 +488,9 @@ updateLaser:
 	str	r1, [r3]
 	str	r2, [r3, #16]
 	bx	lr
-.L56:
+.L58:
 	.align	2
-.L55:
+.L57:
 	.word	laser
 	.size	updateLaser, .-updateLaser
 	.align	2
@@ -484,26 +518,26 @@ updateObst:
 	str	r1, [r4, #4]
 	str	r0, [r4, #8]
 	ldr	r2, [r4, #20]
-	ldr	r6, .L65
+	ldr	r6, .L70
 	stm	sp, {ip, lr}
 	str	r3, [sp, #12]
 	str	r5, [sp, #8]
 	mov	lr, pc
 	bx	r6
 	cmp	r0, #0
-	bne	.L58
-	ldr	r3, [r4]
-.L59:
-	ldr	r5, .L65+4
+	bne	.L69
+.L60:
+	ldr	r5, .L70+4
+	ldr	ip, [r4, #20]
 	ldr	r7, [r4, #24]
-	ldr	lr, [r4, #20]
-	ldr	ip, [r4, #4]
-	str	r3, [sp]
 	add	r2, r5, #24
 	ldm	r2, {r2, r3}
+	ldr	lr, [r4, #4]
 	ldm	r5, {r0, r1}
-	stmib	sp, {ip, lr}
 	str	r7, [sp, #12]
+	str	ip, [sp, #8]
+	ldr	ip, [r4]
+	stm	sp, {ip, lr}
 	mov	lr, pc
 	bx	r6
 	cmp	r0, #0
@@ -515,27 +549,35 @@ updateObst:
 	@ sp needed
 	pop	{r4, r5, r6, r7, lr}
 	bx	lr
-.L58:
+.L69:
 	mov	r3, #67108864
-	mov	r1, #8704
-	ldr	r2, .L65+8
-	strh	r1, [r3, #104]	@ movhi
-	ldr	r1, .L65+12
+	mov	r0, #8704
+	mov	r1, #0
+	ldr	r2, .L70+8
+	strh	r0, [r3, #104]	@ movhi
 	strh	r2, [r3, #108]	@ movhi
-	ldr	r3, [r4]
-	ldr	r2, [r1]
-	add	r3, r3, #7
-	add	r2, r2, #1
-	str	r2, [r1]
-	str	r3, [r4]
-	b	.L59
-.L66:
+	ldr	r2, .L70+12
+	ldr	r3, [r2]
+	str	r1, [r4, #4]
+	add	r3, r3, #1
+	ldr	r1, .L70+16
+	str	r3, [r2]
+	mov	lr, pc
+	bx	r1
+	cmp	r0, #0
+	and	r0, r0, #1
+	rsblt	r0, r0, #0
+	add	r0, r0, #1
+	str	r0, [r4, #16]
+	b	.L60
+.L71:
 	.align	2
-.L65:
+.L70:
 	.word	collision
 	.word	player
 	.word	-30887
 	.word	score
+	.word	rand
 	.size	updateObst, .-updateObst
 	.align	2
 	.global	updateGame
@@ -548,22 +590,20 @@ updateGame:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, lr}
-	ldr	r0, .L72
+	ldr	r0, .L77
 	bl	updateObst
-	ldr	r0, .L72+4
-	bl	updateObst
-	ldr	r0, .L72+8
+	ldr	r0, .L77+4
 	bl	updateObst
 	bl	updatePlayer
-	ldr	r3, .L72+12
+	ldr	r3, .L77+8
 	ldr	r3, [r3, #36]
 	cmp	r3, #0
-	beq	.L71
-.L68:
-	ldr	r3, .L72+16
+	beq	.L76
+.L73:
+	ldr	r3, .L77+12
 	ldmia	r3, {r1, r2}
 	add	r2, r1, r2
-	ldr	r1, .L72+20
+	ldr	r1, .L77+16
 	cmp	r2, #160
 	str	r2, [r3]
 	str	r2, [r1]
@@ -571,15 +611,14 @@ updateGame:
 	pop	{r4, lr}
 	strgt	r2, [r3]
 	bx	lr
-.L71:
+.L76:
 	bl	updatePowerup
-	b	.L68
-.L73:
+	b	.L73
+.L78:
 	.align	2
-.L72:
+.L77:
 	.word	obstacles
 	.word	obstacles+36
-	.word	obstacles+72
 	.word	player
 	.word	.LANCHOR0
 	.word	oldlineY
@@ -595,19 +634,19 @@ updateBG:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r3, .L76
+	ldr	r3, .L81
 	ldmia	r3, {r1, r2}
 	add	r2, r1, r2
-	ldr	r1, .L76+4
+	ldr	r1, .L81+4
 	cmp	r2, #160
 	str	r2, [r3]
 	str	r2, [r1]
 	movgt	r2, #0
 	strgt	r2, [r3]
 	bx	lr
-.L77:
+.L82:
 	.align	2
-.L76:
+.L81:
 	.word	.LANCHOR0
 	.word	oldlineY
 	.size	updateBG, .-updateBG
@@ -622,14 +661,14 @@ drawPlayer:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, lr}
-	ldr	r4, .L80
-	ldr	ip, .L80+4
+	ldr	r4, .L85
+	ldr	ip, .L85+4
 	sub	sp, sp, #12
 	add	r2, r4, #24
 	add	r0, r4, #8
 	ldm	r2, {r2, r3}
 	ldm	r0, {r0, r1}
-	ldr	r5, .L80+8
+	ldr	r5, .L85+8
 	str	ip, [sp]
 	mov	lr, pc
 	bx	r5
@@ -644,9 +683,9 @@ drawPlayer:
 	@ sp needed
 	pop	{r4, r5, lr}
 	bx	lr
-.L81:
+.L86:
 	.align	2
-.L80:
+.L85:
 	.word	player
 	.word	18137
 	.word	drawRect
@@ -662,15 +701,15 @@ drawPowerup:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, lr}
-	ldr	r4, .L84
-	ldr	ip, .L84+4
+	ldr	r4, .L89
+	ldr	ip, .L89+4
 	ldr	r1, [r4, #20]
 	sub	sp, sp, #12
 	ldr	r3, [r4, #28]
 	ldr	r2, [r4, #24]
 	ldr	r0, [r4, #16]
 	str	ip, [sp]
-	ldr	r5, .L84+8
+	ldr	r5, .L89+8
 	sub	r1, r1, #1
 	mov	lr, pc
 	bx	r5
@@ -685,9 +724,9 @@ drawPowerup:
 	@ sp needed
 	pop	{r4, r5, lr}
 	bx	lr
-.L85:
+.L90:
 	.align	2
-.L84:
+.L89:
 	.word	powerup
 	.word	18137
 	.word	drawRect
@@ -703,14 +742,14 @@ drawLaser:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, lr}
-	ldr	r4, .L88
+	ldr	r4, .L93
 	add	r0, r4, #16
-	ldr	ip, .L88+4
+	ldr	ip, .L93+4
 	ldr	r3, [r4, #28]
 	ldm	r0, {r0, r1}
 	sub	sp, sp, #12
 	str	ip, [sp]
-	ldr	r5, .L88+8
+	ldr	r5, .L93+8
 	mov	r2, r3
 	sub	r1, r1, #1
 	sub	r0, r0, #1
@@ -738,9 +777,9 @@ drawLaser:
 	@ sp needed
 	pop	{r4, r5, lr}
 	bx	lr
-.L89:
+.L94:
 	.align	2
-.L88:
+.L93:
 	.word	laser
 	.word	18137
 	.word	drawRect
@@ -756,35 +795,38 @@ drawObst:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, r6, r7, lr}
-	mov	r5, #3
+	mov	r6, #2
 	mov	r4, r0
-	ldr	r6, .L94
-	ldr	r7, .L94+4
+	ldr	r5, .L99
+	ldr	r7, .L99+4
 	sub	sp, sp, #12
-.L91:
+.L96:
 	str	r7, [sp]
 	add	r2, r4, #20
 	ldm	r2, {r2, r3}
 	ldr	r1, [r4, #12]
 	ldr	r0, [r4]
 	mov	lr, pc
-	bx	r6
+	bx	r5
 	ldrh	r2, [r4, #28]
 	ldr	r3, [r4, #24]
 	str	r2, [sp]
 	ldr	r2, [r4, #20]
 	ldm	r4, {r0, r1}
 	mov	lr, pc
-	bx	r6
-	subs	r5, r5, #1
-	bne	.L91
+	bx	r5
+	cmp	r6, #1
+	bne	.L97
 	add	sp, sp, #12
 	@ sp needed
 	pop	{r4, r5, r6, r7, lr}
 	bx	lr
-.L95:
+.L97:
+	mov	r6, #1
+	b	.L96
+.L100:
 	.align	2
-.L94:
+.L99:
 	.word	drawRect
 	.word	18137
 	.size	drawObst, .-drawObst
@@ -799,10 +841,10 @@ drawBG:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, lr}
-	ldr	r2, .L98
-	ldr	r3, .L98+4
+	ldr	r2, .L103
+	ldr	r3, .L103+4
 	sub	sp, sp, #12
-	ldr	r4, .L98+8
+	ldr	r4, .L103+8
 	ldr	r1, [r2]
 	mov	r0, #52
 	str	r3, [sp]
@@ -810,10 +852,10 @@ drawBG:
 	mov	r3, #1
 	mov	lr, pc
 	bx	r4
-	ldr	r2, .L98+12
-	ldr	r3, .L98+16
+	ldr	r2, .L103+12
+	ldr	r3, .L103+16
 	ldr	r1, [r2]
-	ldr	r5, .L98+20
+	ldr	r5, .L103+20
 	str	r3, [sp]
 	mov	r2, #137
 	mov	r3, #1
@@ -839,9 +881,9 @@ drawBG:
 	@ sp needed
 	pop	{r4, r5, lr}
 	bx	lr
-.L99:
+.L104:
 	.align	2
-.L98:
+.L103:
 	.word	.LANCHOR0
 	.word	12852
 	.word	drawRect
@@ -860,25 +902,23 @@ drawGame:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, lr}
-	ldr	r4, .L102
+	ldr	r4, .L107
 	mov	r0, r4
 	bl	drawObst
 	add	r0, r4, #36
-	bl	drawObst
-	add	r0, r4, #72
 	bl	drawObst
 	bl	drawBG
 	bl	drawPlayer
 	bl	drawPowerup
 	bl	drawLaser
-	ldr	r3, .L102+4
+	ldr	r3, .L107+4
 	mov	lr, pc
 	bx	r3
 	pop	{r4, lr}
 	bx	lr
-.L103:
+.L108:
 	.align	2
-.L102:
+.L107:
 	.word	obstacles
 	.word	waitForVBlank
 	.size	drawGame, .-drawGame
@@ -894,16 +934,16 @@ newObst:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
 	mov	r2, #1
-	ldr	r3, .L106
+	ldr	r3, .L111
 	ldr	r0, [r3, #32]
-	ldr	r1, .L106+4
+	ldr	r1, .L111+4
 	cmp	r0, #0
 	str	r2, [r1]
 	streq	r2, [r3, #32]
 	bx	lr
-.L107:
+.L112:
 	.align	2
-.L106:
+.L111:
 	.word	obstacles
 	.word	spawned
 	.size	newObst, .-newObst
@@ -912,7 +952,7 @@ newObst:
 	.global	lineY
 	.comm	t,4,4
 	.comm	spawned,4,4
-	.comm	obstacles,108,4
+	.comm	obstacles,72,4
 	.comm	powerup,40,4
 	.comm	laser,40,4
 	.comm	obstacle,36,4

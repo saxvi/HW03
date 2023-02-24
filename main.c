@@ -51,6 +51,9 @@ void lose();
 
 int main() {
 
+    mgba_open();
+    mgba_printf("debugging ok");
+    
     initialize();
 
     while (1) {
@@ -83,7 +86,7 @@ int main() {
 // set up gba
 void initialize() {
 
-    REG_DISPCTL = MODE(3) | BG_ENABLE(2);
+    REG_DISPCTL = MODE(3) | BG_ENABLE(2);    
 
     REG_SOUNDCNT_X = SND_ENABLED;
 
