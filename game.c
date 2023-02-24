@@ -37,21 +37,22 @@ void initGame() {
 // initialize player struct
 void initPlayer() {
     player.x = 100;
-    player.y = 100;
+    player.y = 101;
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
     player.yvel = 0;
     player.height = 20;
     player.width = 15;
-    player.color = BLUE;
+    player.color = DANGERCAT;
+    player.stripes = DANGERSTRIPE;
     player.powerup = 0;
 }
 
 // initialize laser struct
 void initLaser() {
     laser.x = 120;
-    laser.y = 10;
+    laser.y = 30;
     laser.oldx = laser.x;
     laser.oldy = laser.y;
     laser.height = 3;
@@ -136,11 +137,13 @@ void updatePlayer() {
     // if player collects the powerup, return to original y-location 
     if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
         player.yvel = -3;
-        player.color = CYAN;
+        player.color = CAT;
+        player.stripes = STRIPE;
     }
 
-    if (player.y == 100) {
-        player.color = BLUE;
+    if (player.y >= 100) {
+        player.color = DANGERCAT;
+        player.stripes = DANGERSTRIPE;
 
     }
 
@@ -266,8 +269,53 @@ void drawGame() {
 // draw player
 void drawPlayer() {
     drawRect(player.oldx, player.oldy, player.width, player.height, BRULEE);
+    
     drawRect(player.x, player.y, player.width, player.height, player.color);
-    //drawRect(player.oldx, player.oldy, player.width, player.height, BRULEE);
+
+    // adding stripes
+    drawRect(player.x + 1, player.y, 3, 4, player.stripes);
+    drawRect(player.x + 11, player.y, 3, 3, player.stripes);
+    drawRect(player.x + 13, player.y + 3, 1, 1, player.stripes);
+    drawRect(player.x + 6, player.y + 3, 3, 3, player.stripes);
+    setPixel(player.x + 7, player.y + 5, player.color);
+    drawRect(player.x + 4, player.y + 9, 7, 3 ,player.stripes);
+    drawRect(player.x + 4, player.y + 10, 7, 1, player.color);
+    setPixel(player.x + 3, player.y + 10, player.stripes);
+    setPixel(player.x + 11, player.y + 10, player.stripes);
+    setPixel(player.x + 3, player.y + 12, player.stripes);
+    setPixel(player.x + 11, player.y + 12, player.stripes);
+    setPixel(player.x + 2, player.y + 13, player.stripes);
+    drawRect(player.x + 5, player.y + 13, 3, 1, player.stripes);
+    drawRect(player.x + 3, player.y + 14, 1, 2, player.stripes);
+    setPixel(player.x + 12, player.y + 13, player.stripes);
+    drawRect(player.x + 6, player.y + 17, 1, 3, player.stripes);
+    drawRect(player.x + 7, player.y + 16, 1, 2, player.stripes);
+    drawRect(player.x + 9, player.y + 16, 1, 3, player.stripes);
+    setPixel(player.x + 8, player.y + 19, player.stripes);
+    setPixel(player.x + 8, player.y + 15, player.stripes);
+    setPixel(player.x + 9, player.y + 14, player.stripes);
+    setPixel(player.x + 10, player.y + 15, player.stripes);
+
+
+
+    
+
+    // sculpting the cat
+    drawRect(player.x, player.y, 1, 12, BRULEE);
+    drawRect(player.x + 1, player.y , 1, 1, BRULEE);
+    drawRect(player.x + 1, player.y + 6, 1, 4, BRULEE);
+    drawRect(player.x + 2, player.y + 8, 1, 1, BRULEE);
+    drawRect(player.x, player.y + 17, 1, 3, BRULEE);
+    drawRect(player.x + 1, player.y + 19, 2, 1, BRULEE);
+    drawRect(player.x + 3, player.y, 9, 1, BRULEE);
+    drawRect(player.x + 4, player.y + 1, 7, 1, BRULEE);
+    drawRect(player.x + 5, player.y + 2, 5, 1, BRULEE);
+    drawRect(player.x + 14, player.y, 1, 12, BRULEE);
+    drawRect(player.x + 13, player.y + 6, 1, 4, BRULEE);
+    drawRect(player.x + 13, player.y, 1, 1, BRULEE);
+    drawRect(player.x + 12, player.y + 8, 1, 1, BRULEE);
+    drawRect(player.x + 14, player.y + 17, 1 ,3, BRULEE);
+    drawRect(player.x + 12, player.y + 19, 2, 1, BRULEE);
 
 }
 

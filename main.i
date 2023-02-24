@@ -27,12 +27,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 76 "gba.h"
+# 79 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 95 "gba.h"
+# 98 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -45,7 +45,7 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 127 "gba.h"
+# 130 "gba.h"
 void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 2 "main.c" 2
 # 1 "print.h" 1
@@ -273,6 +273,7 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
+    unsigned short stripes;
     int powerup;
 } PLAYER;
 
@@ -302,7 +303,7 @@ typedef struct {
     unsigned short color;
     int show;
 } DOT;
-# 51 "game.h"
+# 52 "game.h"
 extern PLAYER player;
 extern DOT laser;
 extern DOT powerup;
@@ -1573,6 +1574,8 @@ void goToStart() {
         } else {
             drawChar(col + (i * spacing), 70, letters[i], colors[1]);
         }
+    drawString(70, 90, "catch the laser!", ((22&31) | (19&31) << 5 | (14&31) << 10));
+
     }
 
     state = START;
@@ -1587,9 +1590,9 @@ void start() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         srand(time(
-# 144 "main.c" 3 4
+# 146 "main.c" 3 4
                   ((void *)0)
-# 144 "main.c"
+# 146 "main.c"
                       ));
         goToGame();
         initGame();
@@ -1599,8 +1602,8 @@ void start() {
 
 void goToGame() {
 
-    fillScreen(((11&31) | (6&31) << 5 | (3&31) << 10));
-    drawRect(52, 0, 137, 160, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    fillScreen(((9&31) | (6&31) << 5 | (5&31) << 10));
+    drawRect(52, 0, 138, 160, ((25&31) | (22&31) << 5 | (17&31) << 10));
     drawString(2, 31, "score: ", ((6&31) | (14&31) << 5 | (11&31) << 10));
     state = GAME;
 }
@@ -1614,7 +1617,7 @@ void game() {
     sprintf(buffer, "%d", score);
     sprintf(hscore, "%d", temp);
 
-    drawRect(2, 41, 50, 8, ((11&31) | (6&31) << 5 | (3&31) << 10));
+    drawRect(2, 41, 50, 8, ((9&31) | (6&31) << 5 | (5&31) << 10));
     drawString(2, 41, buffer, ((6&31) | (14&31) << 5 | (11&31) << 10));
 
     drawGame();
@@ -1627,7 +1630,7 @@ void game() {
         goToLose();
     }
 
-    if (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height)) {
+    if ((!(~(oldButtons) & ((1<<0))) && (~(buttons) & ((1<<0)))) || (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height))) {
         goToWin();
     }
 }
@@ -1656,7 +1659,7 @@ void pause() {
 
 void goToLose() {
     fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
-    drawString(85, 48, "you lose!", ((25&31) | (18&31) << 5 | (14&31) << 10));
+    drawString(85, 48, "you lost!", ((25&31) | (18&31) << 5 | (14&31) << 10));
     drawString(85, 68, "score: ", ((25&31) | (18&31) << 5 | (14&31) << 10));
     drawString(125, 68, hscore, ((25&31) | (18&31) << 5 | (14&31) << 10));
 
@@ -1675,20 +1678,21 @@ void lose() {
 
 
 void goToWin() {
+    waitForVBlank();
     fillScreen(((6&31) | (14&31) << 5 | (11&31) << 10));
 
     drawString(85, 48, "you win!", ((25&31) | (18&31) << 5 | (14&31) << 10));
     drawString(50, 60, "you caught the laser!", ((25&31) | (18&31) << 5 | (14&31) << 10));
 
-    drawString(55, 78, "obstacles passed: ", ((25&31) | (22&31) << 5 | (17&31) << 10));
-    drawString(125, 90, hscore, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(60, 78, "obstacles passed: ", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(164, 78, hscore, ((25&31) | (22&31) << 5 | (17&31) << 10));
 
-    drawString(40, 108, "press start to play again", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawString(43, 108, "press start to play again", ((25&31) | (22&31) << 5 | (17&31) << 10));
+    state = WIN;
 }
 
 
 void win() {
-    waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToStart();
     }

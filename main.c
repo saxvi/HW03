@@ -128,6 +128,8 @@ void goToStart() {
         } else {
             drawChar(col + (i * spacing), 70, letters[i], colors[1]);
         }
+    drawString(70, 90, "catch the laser!", COLOR(22, 19, 14));
+
     }
 
     state = START;
@@ -151,7 +153,7 @@ void start() {
 void goToGame() {
 
     fillScreen(BROWN);
-    drawRect(52, 0, 137, SCREENHEIGHT, BRULEE);
+    drawRect(52, 0, 138, SCREENHEIGHT, BRULEE);
     drawString(2, 31, "score: ", FOREST);
     state = GAME;
 }
@@ -178,7 +180,7 @@ void game() {
         goToLose();
     }
 
-    if (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height)) {
+    if (BUTTON_PRESSED(BUTTON_A) || (collision(player.x, player.y, player.width, player.height, laser.x, laser.y, laser.width, laser.height))) {
         goToWin();
     }
 }
@@ -207,7 +209,7 @@ void pause() {
 // set up lose
 void goToLose() {
     fillScreen(FOREST);
-    drawString(85, 48, "you lose!", PEENK);
+    drawString(85, 48, "you lost!", PEENK);
     drawString(85, 68, "score: ", PEENK);
     drawString(125, 68, hscore, PEENK);
 
@@ -226,20 +228,21 @@ void lose() {
 
 // set up win
 void goToWin() {
+    waitForVBlank();
     fillScreen(FOREST);
 
     drawString(85, 48, "you win!", PEENK);
     drawString(50, 60, "you caught the laser!", PEENK);
 
-    drawString(55, 78, "obstacles passed: ", BRULEE);
-    drawString(125, 90, hscore, BRULEE);
+    drawString(60, 78, "obstacles passed: ", BRULEE);
+    drawString(164, 78, hscore, BRULEE);
 
-    drawString(40, 108, "press start to play again", BRULEE);
+    drawString(43, 108, "press start to play again", BRULEE);
+    state = WIN;
 }
 
 // runs win state
 void win() {
-    waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }

@@ -16,6 +16,7 @@ typedef struct {
     int width;
     int height;
     unsigned short color;
+    unsigned short stripes;
     int powerup;
 } PLAYER;
 
@@ -45,7 +46,7 @@ typedef struct {
     unsigned short color;
     int show;
 } DOT;
-# 51 "game.h"
+# 52 "game.h"
 extern PLAYER player;
 extern DOT laser;
 extern DOT powerup;
@@ -96,12 +97,12 @@ void waitForVBlank();
 
 
 int collision(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2);
-# 76 "gba.h"
+# 79 "gba.h"
 void drawRect(int x, int y, int width, int height, volatile unsigned short color);
 void fillScreen(volatile unsigned short color);
 void drawChar(int x, int y, char ch, unsigned short color);
 void drawString(int x, int y, char *str, unsigned short color);
-# 95 "gba.h"
+# 98 "gba.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
 
@@ -114,7 +115,7 @@ typedef volatile struct {
     volatile unsigned int cnt;
 } DMA;
 extern DMA *dma;
-# 127 "gba.h"
+# 130 "gba.h"
 void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 # 3 "game.c" 2
 # 1 "sound.h" 1
@@ -232,21 +233,22 @@ void initGame() {
 
 void initPlayer() {
     player.x = 100;
-    player.y = 100;
+    player.y = 101;
     player.oldx = player.x;
     player.oldy = player.y;
     player.xvel = 0;
     player.yvel = 0;
     player.height = 20;
     player.width = 15;
-    player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
+    player.color = ((23&31) | (15&31) << 5 | (15&31) << 10);
+    player.stripes = ((21&31) | (6&31) << 5 | (6&31) << 10);
     player.powerup = 0;
 }
 
 
 void initLaser() {
     laser.x = 120;
-    laser.y = 10;
+    laser.y = 30;
     laser.oldx = laser.x;
     laser.oldy = laser.y;
     laser.height = 3;
@@ -302,7 +304,7 @@ void updateGame() {
     if (!(player.powerup)) {
         updatePowerup();
     }
-# 120 "game.c"
+# 121 "game.c"
     updateBG();
 }
 
@@ -322,11 +324,13 @@ void updatePlayer() {
 
     if (collision(player.x, player.y, player.width, player.height, powerup.x, powerup.y, powerup.width, powerup.height)) {
         player.yvel = -3;
-        player.color = ((0&31) | (31&31) << 5 | (31&31) << 10);
+        player.color = ((14&31) | (12&31) << 5 | (11&31) << 10);
+        player.stripes = ((9&31) | (7&31) << 5 | (5&31) << 10);
     }
 
-    if (player.y == 100) {
-        player.color = ((0&31) | (0&31) << 5 | (31&31) << 10);
+    if (player.y >= 100) {
+        player.color = ((23&31) | (15&31) << 5 | (15&31) << 10);
+        player.stripes = ((21&31) | (6&31) << 5 | (6&31) << 10);
 
     }
 
@@ -452,8 +456,53 @@ void drawGame() {
 
 void drawPlayer() {
     drawRect(player.oldx, player.oldy, player.width, player.height, ((25&31) | (22&31) << 5 | (17&31) << 10));
+
     drawRect(player.x, player.y, player.width, player.height, player.color);
 
+
+    drawRect(player.x + 1, player.y, 3, 4, player.stripes);
+    drawRect(player.x + 11, player.y, 3, 3, player.stripes);
+    drawRect(player.x + 13, player.y + 3, 1, 1, player.stripes);
+    drawRect(player.x + 6, player.y + 3, 3, 3, player.stripes);
+    (videoBuffer[((player.y + 5) * (240) + (player.x + 7))] = player.color);
+    drawRect(player.x + 4, player.y + 9, 7, 3 ,player.stripes);
+    drawRect(player.x + 4, player.y + 10, 7, 1, player.color);
+    (videoBuffer[((player.y + 10) * (240) + (player.x + 3))] = player.stripes);
+    (videoBuffer[((player.y + 10) * (240) + (player.x + 11))] = player.stripes);
+    (videoBuffer[((player.y + 12) * (240) + (player.x + 3))] = player.stripes);
+    (videoBuffer[((player.y + 12) * (240) + (player.x + 11))] = player.stripes);
+    (videoBuffer[((player.y + 13) * (240) + (player.x + 2))] = player.stripes);
+    drawRect(player.x + 5, player.y + 13, 3, 1, player.stripes);
+    drawRect(player.x + 3, player.y + 14, 1, 2, player.stripes);
+    (videoBuffer[((player.y + 13) * (240) + (player.x + 12))] = player.stripes);
+    drawRect(player.x + 6, player.y + 17, 1, 3, player.stripes);
+    drawRect(player.x + 7, player.y + 16, 1, 2, player.stripes);
+    drawRect(player.x + 9, player.y + 16, 1, 3, player.stripes);
+    (videoBuffer[((player.y + 19) * (240) + (player.x + 8))] = player.stripes);
+    (videoBuffer[((player.y + 15) * (240) + (player.x + 8))] = player.stripes);
+    (videoBuffer[((player.y + 14) * (240) + (player.x + 9))] = player.stripes);
+    (videoBuffer[((player.y + 15) * (240) + (player.x + 10))] = player.stripes);
+
+
+
+
+
+
+    drawRect(player.x, player.y, 1, 12, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 1, player.y , 1, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 1, player.y + 6, 1, 4, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 2, player.y + 8, 1, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x, player.y + 17, 1, 3, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 1, player.y + 19, 2, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 3, player.y, 9, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 4, player.y + 1, 7, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 5, player.y + 2, 5, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 14, player.y, 1, 12, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 13, player.y + 6, 1, 4, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 13, player.y, 1, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 12, player.y + 8, 1, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 14, player.y + 17, 1 ,3, ((25&31) | (22&31) << 5 | (17&31) << 10));
+    drawRect(player.x + 12, player.y + 19, 2, 1, ((25&31) | (22&31) << 5 | (17&31) << 10));
 
 }
 
