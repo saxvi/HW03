@@ -12,6 +12,7 @@ when you collect a power up treat, you will change colors, indicating that you a
 if you touch the laser, you win, and your final score (the obstacles you pass) will be displayed on the end screen.
 
 notes:
--> i am only 90% sure the end screen works, i have never caught the laser
--> obstacles do not seem to be spawning in the far right lane, but if you want to win you have to go between all of them to collect power ups
+(1) i am only 90% sure the end screen works, i have never caught the laser
+(2) obstacles do not seem to be spawning in the far right lane, but if you want to win you have to go between all of them to collect power ups
+(3) sometimes the previous pixels do not get erased. i cannot figure out why sorry :)
 
