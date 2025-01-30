@@ -13,8 +13,5 @@ if you fall too far back, you will change colors, indicating that you are in dan
 
 if you touch the laser, you win, and your final score (the number of obstacles you pass) will be displayed on the end screen.
 
-notes:
-(1) i am only 97% sure the end screen works, i have never caught the laser
-(2) obstacles do not seem to be spawning in the far right lane, but if you want to win you have to go between all of them to collect power ups
-(3) sometimes the previous pixels do not get erased. i cannot figure out why sorry :)
-
+note:
+i am only 97% sure the end screen works, i have never caught the laser (update: it works)
